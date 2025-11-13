@@ -1,10 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-const Input = ({ type, label }: { type: string; label: string }) => {
+const Input = ({
+  type,
+  label,
+  value,
+  setValue,
+}: {
+  type: string;
+  label: string;
+  value: string;
+  setValue: Dispatch<SetStateAction<string>>;
+}) => {
   const [active, setActive] = useState(false);
-  const [value, setValue] = useState("");
+  // const [value, setValue] = useState("");
 
   useEffect(() => {
     if (value !== "") {
