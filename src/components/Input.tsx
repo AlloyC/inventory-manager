@@ -14,7 +14,6 @@ const Input = ({
   setValue: Dispatch<SetStateAction<string>>;
 }) => {
   const [active, setActive] = useState(false);
-  // const [value, setValue] = useState("");
 
   useEffect(() => {
     if (value !== "") {
@@ -27,7 +26,7 @@ const Input = ({
   return (
     <div className="relative">
       <label
-        className={`absolute  transition-all ${
+        className={`absolute -z-10 transition-all ${
           active
             ? "-top-3 left-0 text-sm font-semibold px-1 text-blue-800"
             : "text-gray-600 left-2 top-2"

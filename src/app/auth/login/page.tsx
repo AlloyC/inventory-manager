@@ -1,7 +1,5 @@
-import SubmitBtn from "@/app/components/submitBtn";
-import Input from "../../components/Input";
-import Link from "next/link";
 import Logo from "../../../../public/assets/svgs/Logo";
+import LoginForm from "./loginForm";
 
 function login() {
   return (
@@ -13,22 +11,11 @@ function login() {
         <h3 className="text-lg text-center italic font-medium text-blue-800">
           Welcome back
         </h3>
-        <p className=" text-center italic text-blue-800">Log in to your workspace</p>
-      </div>
-      <form className="w-full h-10/12 rounded-2xl flex flex-col gap-7">
-        <Input type="text" label="Username" />
-        <Input type="password" label="Password" />
-        <div className="self-end italic text-sm cursor-pointer text-[#310076]/90">
-          forgot password?
-        </div>
-        <SubmitBtn text="Login" />
-        <p className="text-center text-sm">
-          Don't have an account?{" "}
-          <Link href={"sign-up"}>
-            <span className="text-blue-600 cursor-pointer">Sign up</span>
-          </Link>
+        <p className=" text-center italic text-blue-800">
+          Log in to your workspace
         </p>
-      </form>
+      </div>
+      <LoginForm />
     </div>
   );
 }
