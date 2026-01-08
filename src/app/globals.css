@@ -1,3 +1,22 @@
 @import "tailwindcss";
 
+.layout-grid-template {
+  display: grid;
+  grid-template-columns: 16rem auto;
+  grid-template-rows: 4.3rem auto;
+  grid-template-areas:
+    "sidebar topbar"
+    "sidebar main";
+}
 
+.sidebar {
+  grid-area: sidebar;
+}
+
+.topbar {
+  grid-area: topbar;
+}
+
+.main {
+  grid-area: main;
+}

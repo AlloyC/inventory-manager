@@ -2,9 +2,10 @@ import React from "react";
 
 const Logo = ({
   mode = "light",
-  width = "103",
-  height = "20",
   className = "w-full h-auto",
+}: {
+  mode?: "light" | "dark";
+  className?: string;
 }) => {
   return (
     <div>
