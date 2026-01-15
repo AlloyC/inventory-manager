@@ -5,6 +5,7 @@ export interface NavbarLink {
   name: string;
   path: string;
   Logo: React.ReactElement;
+  status?: boolean;
 }
 
 export interface UserData {
@@ -19,4 +20,5 @@ export interface Card {
   className: string;
   property: string;
   value: number;
+  icon: React.ReactElement;
 }
