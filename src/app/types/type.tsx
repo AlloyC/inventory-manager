@@ -17,8 +17,6 @@ export interface UserDataContext extends UserData {
 }
 
 export interface Card {
-  className: string;
   property: string;
   value: number;
-  icon: React.ReactElement;
 }

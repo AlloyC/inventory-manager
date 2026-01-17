@@ -39,8 +39,8 @@ const Sidebar = () => {
         )}
       </button>
       <div
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
+        // onMouseEnter={() => setIsOpen(true)}
+        // onMouseLeave={() => setIsOpen(false)}
         className="w-min transition-all duration-500 flex pointer-events-auto relative flex-col items-center h-full bg-gray-700"
       >
         <header className="font-semibold text-2xl italic text-center py-3 pt-5">
