@@ -4,8 +4,10 @@ import Logo from "../../../../public/assets/svgs/Logo";
 import supabase from "@/app/SupabaseCredentials";
 import { useRouter } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 const page = () => {
- const router = useRouter();
+  const router = useRouter();
   const [status, setStatus] = useState("Verifying confirmation...");
 
   useEffect(() => {
@@ -47,9 +49,7 @@ const page = () => {
         <h3 className="text-lg text-center font-medium text-blue-800">
           Verify your account
         </h3>
-        <p className=" text-center italic text-blue-800">
-          {status}
-        </p>
+        <p className=" text-center italic text-blue-800">{status}</p>
       </div>
     </div>
   );
