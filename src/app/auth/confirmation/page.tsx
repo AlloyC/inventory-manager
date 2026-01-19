@@ -10,32 +10,53 @@ const page = () => {
   const router = useRouter();
   const [status, setStatus] = useState("Verifying confirmation...");
 
+  // Set the session in Supabase using the access and refresh tokens
+  const setSession = async ({
+    access_token,
+    refresh_token,
+  }: {
+    access_token: string;
+    refresh_token: string;
+  }) => {
+    try {
+      const { data, error } = await supabase.auth.setSession({
+        access_token,
+        refresh_token,
+      });
+      if (error) {
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error("Failed to set session:", error);
+      setStatus("Failed to sign in after confirmation.");
+      return;
+    }
+  };
+
+  // Supabase usually returns tokens in the URL fragment (#access_token=...&refresh_token=...)
+  const extractTokensFromUrl = () => {
+    const fragment = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : window.location.search.slice(1);
+    const params = new URLSearchParams(fragment);
+    const access_token = params.get("access_token");
+    const refresh_token = params.get("refresh_token");
+    return { access_token, refresh_token };
+  };
+
   useEffect(() => {
     (async () => {
-      // Supabase usually returns tokens in the URL fragment (#access_token=...&refresh_token=...)
-      const fragment = window.location.hash.startsWith("#")
-        ? window.location.hash.slice(1)
-        : window.location.search.slice(1);
-      const params = new URLSearchParams(fragment);
-      const access_token = params.get("access_token");
-      const refresh_token = params.get("refresh_token");
+      const { access_token, refresh_token } = extractTokensFromUrl();
 
       if (access_token && refresh_token) {
-        const { data, error } = await supabase.auth.setSession({
-          access_token,
-          refresh_token,
-        });
-        if (error) {
-          console.error("Failed to set session:", error);
-          setStatus("Failed to sign in after confirmation.");
-          return;
-        }
         setStatus("Email confirmed — signing you in...");
+        const data = await setSession({ access_token, refresh_token });
         // navigate to your app after session is set
-        // router.push("/dashboard");
+        data && router.push("/dashboard");
       } else {
         setStatus(
-          "A confirmation link has been sent to your email. Please check your inbox and click on the link to verify your account."
+          "A confirmation link has been sent to your email. Please check your inbox and click on the link to verify your account.",
         );
       }
     })();
