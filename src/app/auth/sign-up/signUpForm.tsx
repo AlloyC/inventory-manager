@@ -10,14 +10,14 @@ import { useRouter } from "next/navigation";
 const SignUpForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPasswaord] = useState("");
-  const [confrimPassword, setConfirmPassword] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const signUpUser = async () => {
     // Basic validation
-    if (password !== confrimPassword) {
+    if (password !== confirmPassword) {
       console.log("Passwords do not match");
       return;
     }
@@ -29,6 +29,9 @@ const SignUpForm = () => {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/confirmation`,
+          data: {
+            username: username,
+          },
         },
       });
       if (error) {
@@ -53,12 +56,12 @@ const SignUpForm = () => {
       <Input value={email} setValue={setEmail} type="email" label="Email" />
       <Input
         value={password}
-        setValue={setPasswaord}
+        setValue={setPassword}
         type="password"
         label="Password"
       />
       <Input
-        value={confrimPassword}
+        value={confirmPassword}
         setValue={setConfirmPassword}
         type="password"
         label="Confirm Password"
