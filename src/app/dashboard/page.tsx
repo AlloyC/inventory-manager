@@ -1,5 +1,3 @@
-import Button from "@/components/Button";
-import PageTitle from "@/components/PageTitle";
 import Cards from "./component/Cards";
 import DetailedSection from "./component/DetailedSection";
 import PageHeader from "./component/PageHeader";

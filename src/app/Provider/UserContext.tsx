@@ -13,7 +13,7 @@ export const useUser = () => {
   return context;
 };
 
-const getSession = async () => {
+export const getSession = async () => {
   try {
     const {
       data: { session },
@@ -36,7 +36,8 @@ export const fetchInventory = async () => {
   try {
     const { data: components, error } = await supabase
       .from("components")
-      .select("*");
+      .select("*")
+      .eq("user_id", userSession.user.id);
 
     if (error) {
       throw error;
@@ -48,15 +49,18 @@ export const fetchInventory = async () => {
   }
 };
 
+// Fetch user inventory components from Supabase with pagination
 export const fetchPaginatedInventory = async (
   page: number,
   pageSize: number,
 ) => {
+  const userSession = await getSession();
+  if (!userSession) return [];
   try {
-    await getSession();
     const { data: components, error } = await supabase
       .from("components")
       .select("*")
+      .eq("user_id", userSession.user.id)
       .range((page - 1) * pageSize, page * pageSize - 1);
     if (error) {
       throw error;
