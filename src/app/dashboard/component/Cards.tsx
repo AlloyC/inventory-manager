@@ -1,3 +1,4 @@
+"use client";
 import { Card } from "@/app/types/type";
 import SummaryCard from "./Card";
 

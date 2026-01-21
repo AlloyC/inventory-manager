@@ -8,7 +8,10 @@ export interface NavbarLink {
 }
 
 export interface UserData {
-  firstName: string;
+  username: string;
+  email: string;
+  id: string;
+  email_verified?: boolean;
 }
 
 export interface UserDataContext extends UserData {
@@ -18,4 +21,14 @@ export interface UserDataContext extends UserData {
 export interface Card {
   property: string;
   value: number;
+}
+
+export interface InventoryComponent {
+  id: string;
+  name: string;
+  value: string;
+  location: string;
+  status: "In Stock" | "Low Stock" | "Out of Stock";
+  current_qty: number;
+  image: string;
 }

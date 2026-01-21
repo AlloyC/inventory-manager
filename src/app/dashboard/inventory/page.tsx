@@ -1,3 +1,4 @@
+"use client";
 import { Input } from "@/components/ui/input";
 import PageHeader from "../component/PageHeader";
 import {
@@ -18,9 +19,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Image from "next/image";
-import { Filter, MoreHorizontal } from "lucide-react";
+import { Dot, Filter, MoreHorizontal } from "lucide-react";
+import { useEffect, useState } from "react";
+import { fetchPaginatedInventory } from "@/app/Provider/UserContext";
+import { InventoryComponent } from "@/app/types/type";
 
 const page = () => {
+  const [inventory, setInventory] = useState<InventoryComponent[] | null>(null);
+  const [page, setPage] = useState(1);
+  useEffect(() => {
+    fetchPaginatedInventory(page, 10).then((data) => {
+      setInventory(data || []);
+    });
+  }, [page]);
+  if (!inventory) {
+    return null;
+  }
+
   return (
     <div className="w-full h-full">
       <PageHeader title="Inventory" buttonOneText="New" buttonTwoText="CSV" />
@@ -59,36 +74,40 @@ const page = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow key="1">
-              <TableCell className="font-medium">
-                <Image
-                  src="/assets/pngs/logo.png"
-                  alt="Component Image"
-                  width={20}
-                  height={20}
-                  className="rounded"
-                />
-              </TableCell>
-              <TableCell>Component 1</TableCell>
-              <TableCell>390j</TableCell>
-              <TableCell>Shelf 41G</TableCell>
-              <TableCell className="text-red-400 flex items-center gap-2 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
-                <span>Low stock</span>
-              </TableCell>
-              <TableCell>50</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="px-2 flex items-center gap-2">
-                    <MoreHorizontal />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
+            {inventory.map((component) => (
+              <TableRow key={component.id}>
+                <TableCell className="font-medium">
+                  <Image
+                    src={component.image}
+                    alt="Component Image"
+                    width={20}
+                    height={20}
+                    className="rounded"
+                  />
+                </TableCell>
+                <TableCell>{component.name}</TableCell>
+                <TableCell>{component.value}</TableCell>
+                <TableCell>{component.location}</TableCell>
+                <TableCell
+                  className={`${component.status === "In Stock" ? "text-green-400" : component.status === "Low Stock" ? "text-yellow-400" : "text-red-400"} flex items-center gap-2 font-medium`}
+                >
+                  <Dot />
+                  <span>{component.status}</span>
+                </TableCell>
+                <TableCell>{component.current_qty}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="px-2 flex items-center gap-2">
+                      <MoreHorizontal />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </div>

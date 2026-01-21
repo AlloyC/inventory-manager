@@ -13,16 +13,63 @@ export const useUser = () => {
   return context;
 };
 
+const getSession = async () => {
+  try {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      throw error;
+    }
+    return session;
+  } catch (error) {
+    console.log("Error getting session:", error);
+  }
+};
+
+// Fetch user inventory components from Supabase
+export const fetchInventory = async () => {
+  const userSession = await getSession();
+  if (!userSession) return [];
+  try {
+    const { data: components, error } = await supabase
+      .from("components")
+      .select("*");
+
+    if (error) {
+      throw error;
+    }
+    return components || [];
+  } catch (error) {
+    console.log("Error fetching inventory:", error);
+    return [];
+  }
+};
+
+export const fetchPaginatedInventory = async (
+  page: number,
+  pageSize: number,
+) => {
+  try {
+    await getSession();
+    const { data: components, error } = await supabase
+      .from("components")
+      .select("*")
+      .range((page - 1) * pageSize, page * pageSize - 1);
+    if (error) {
+      throw error;
+    }
+    return components || [];
+  } catch (error) {
+    console.log("Error fetching paginated inventory:", error);
+    return [];
+  }
+};
+
 const UserContext = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUserData] = useState<null | UserData>(null);
-
-  const fetchUserData = async () => {
-    const user = await fetchUser();
-    if (user) {
-      const components = await fetchInventory();
-      console.log(user, components);
-    }
-  };
 
   // Fetch user details from Supabase
   const fetchUser = async () => {
@@ -34,29 +81,21 @@ const UserContext = ({ children }: { children: React.ReactNode }) => {
       if (error) {
         throw error;
       }
+      user &&
+        setUserData({
+          username: user.user_metadata.full_name || "",
+          email: user.email || "",
+          id: user.id || "",
+          email_verified: user.user_metadata.email_verified || false,
+        });
       return user;
     } catch (error) {
       console.log("Error fetching user:", error);
     }
   };
-  // Fetch user inventory components from Supabase
-  const fetchInventory = async () => {
-    try {
-      const { data: components, error } = await supabase
-        .from("components")
-        .select("*");
-
-      if (error) {
-        throw error;
-      }
-      return components;
-    } catch (error) {
-      console.log("Error fetching inventory:", error);
-    }
-  };
 
   useEffect(() => {
-    fetchUserData();
+    fetchUser();
   }, []);
 
   return (
