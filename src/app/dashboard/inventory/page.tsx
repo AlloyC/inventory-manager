@@ -22,9 +22,9 @@ import { Filter, MoreHorizontal } from "lucide-react";
 
 const page = () => {
   return (
-    <div className="">
+    <div className="w-full h-full">
       <PageHeader title="Inventory" buttonOneText="New" buttonTwoText="CSV" />
-      <div className="border-t-2 mt-5">
+      <div className="border-t-2 mt-5 grid">
         <div className="py-5 flex gap-2 justify-between items-center">
           <Input
             type="text"
@@ -46,10 +46,10 @@ const page = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Table className="">
+        <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Image</TableHead>
+              <TableHead>Image</TableHead>
               <TableHead>Component name</TableHead>
               <TableHead>Value</TableHead>
               <TableHead>Location</TableHead>

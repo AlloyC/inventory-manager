@@ -150,3 +150,25 @@ button {
     @apply bg-background text-foreground;
   }
 }
+
+.sidebar-animate-in {
+  animation-name: fadeIn;
+  animation-duration: 500ms;
+  animation-iteration-count: 1;
+}
+
+.sidebar-animate-out {
+  animation-name: fadeOut;
+  animation-duration: 1000ms;
+  animation-iteration-count: 1;
+}
+@keyframes fadeIn {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

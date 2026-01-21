@@ -4,8 +4,7 @@ import { Dispatch, SetStateAction } from "react";
 export interface NavbarLink {
   name: string;
   path: string;
-  Logo: React.ReactElement;
-  status?: boolean;
+  Logo: any;
 }
 
 export interface UserData {
