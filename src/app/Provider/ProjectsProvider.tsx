@@ -63,7 +63,11 @@ const ProjectsProvider = ({ children }: { children: React.ReactNode }) => {
   }, [page]);
 
   useEffect(() => {
-    getProjects(1, 3, true).then((projects) => setPinned(projects));
+    getProjects(1, 3, true)
+      .then((projects) => setPinned(projects))
+      .catch((error) => {
+        console.error("Error fetching pinned projects:", error);
+      });
   }, []);
 
   return (
