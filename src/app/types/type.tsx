@@ -26,9 +26,14 @@ export interface Card {
 export interface InventoryComponent {
   id: string;
   name: string;
-  value: string;
   location: string;
   status: "In Stock" | "Low Stock" | "Out of Stock";
   current_qty: number;
   image: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  status: "planning" | "in progress" | "completed";
 }

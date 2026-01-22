@@ -20,18 +20,11 @@ import {
 } from "@/components/ui/table";
 import Image from "next/image";
 import { Dot, Filter, MoreHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
-import { fetchPaginatedInventory } from "@/app/Provider/UserContext";
-import { InventoryComponent } from "@/app/types/type";
+import { useInventory, usePage } from "@/app/Provider/InventoryContext";
 
 const page = () => {
-  const [inventory, setInventory] = useState<InventoryComponent[] | null>(null);
-  const [page, setPage] = useState(1);
-  useEffect(() => {
-    fetchPaginatedInventory(page, 10).then((data) => {
-      setInventory(data || []);
-    });
-  }, [page]);
+  const { setPage, page } = usePage();
+  const { inventory } = useInventory();
   if (!inventory) {
     return null;
   }
@@ -66,7 +59,6 @@ const page = () => {
             <TableRow>
               <TableHead>Image</TableHead>
               <TableHead>Component name</TableHead>
-              <TableHead>Value</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Current Qty</TableHead>
@@ -86,7 +78,6 @@ const page = () => {
                   />
                 </TableCell>
                 <TableCell>{component.name}</TableCell>
-                <TableCell>{component.value}</TableCell>
                 <TableCell>{component.location}</TableCell>
                 <TableCell
                   className={`${component.status === "In Stock" ? "text-green-400" : component.status === "Low Stock" ? "text-yellow-400" : "text-red-400"} flex items-center gap-2 font-medium`}

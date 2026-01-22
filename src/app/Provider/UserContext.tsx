@@ -29,49 +29,6 @@ export const getSession = async () => {
   }
 };
 
-// Fetch user inventory components from Supabase
-export const fetchInventory = async () => {
-  const userSession = await getSession();
-  if (!userSession) return [];
-  try {
-    const { data: components, error } = await supabase
-      .from("components")
-      .select("*")
-      .eq("user_id", userSession.user.id);
-
-    if (error) {
-      throw error;
-    }
-    return components || [];
-  } catch (error) {
-    console.log("Error fetching inventory:", error);
-    return [];
-  }
-};
-
-// Fetch user inventory components from Supabase with pagination
-export const fetchPaginatedInventory = async (
-  page: number,
-  pageSize: number,
-) => {
-  const userSession = await getSession();
-  if (!userSession) return [];
-  try {
-    const { data: components, error } = await supabase
-      .from("components")
-      .select("*")
-      .eq("user_id", userSession.user.id)
-      .range((page - 1) * pageSize, page * pageSize - 1);
-    if (error) {
-      throw error;
-    }
-    return components || [];
-  } catch (error) {
-    console.log("Error fetching paginated inventory:", error);
-    return [];
-  }
-};
-
 const UserContext = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUserData] = useState<null | UserData>(null);
 

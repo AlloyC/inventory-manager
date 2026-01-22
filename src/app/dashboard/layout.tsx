@@ -4,6 +4,7 @@ import UserContext from "../Provider/UserContext";
 import TopBar from "./TopBar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import InventoryContext from "../Provider/InventoryContext";
+import ProjectsProvider from "../Provider/ProjectsProvider";
 
 const layout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
@@ -17,7 +18,9 @@ const layout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
         </div>
         <main className="w-full max-w-7xl mx-auto h-full p-5 md:px-10">
           <UserContext>
-            <InventoryContext>{children}</InventoryContext>
+            <ProjectsProvider>
+              <InventoryContext>{children}</InventoryContext>
+            </ProjectsProvider>
           </UserContext>
         </main>
       </div>
