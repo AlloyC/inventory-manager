@@ -78,7 +78,11 @@ export const getTableLengths = async () => {
 
 type statusType = "In Stock" | "Low Stock" | "Out of Stock";
 // Fetch user inventory components from Supabase with pagination
-export const fetchPaginatedInventory = async (
+export const fetchPaginatedInventory: (
+  page: number,
+  pageSize: number,
+  status?: statusType[],
+) => Promise<InventoryComponent[]> = async (
   page: number,
   pageSize: number,
   status?: statusType[],
@@ -91,30 +95,7 @@ export const fetchPaginatedInventory = async (
       .select("*")
       .eq("user_id", userSession.user.id)
       .in("status", status || ["Low Stock", "In Stock", "Out of Stock"])
-      .range((page - 1) * pageSize, page * pageSize - 1);
-    if (error) {
-      throw error;
-    }
-    return components || [];
-  } catch (error) {
-    console.log("Error fetching paginated inventory:", error);
-    return [];
-  }
-};
-
-export const fetchFilteredPaginatedInventory = async (
-  page: number,
-  pageSize: number,
-  status?: statusType[],
-) => {
-  const userSession = await getSession();
-  if (!userSession) return [];
-  try {
-    const { data: components, error } = await supabase
-      .from("components")
-      .select("*")
-      .eq("user_id", userSession.user.id)
-      .in("status", status || [])
+      .order("created_at", { ascending: true })
       .range((page - 1) * pageSize, page * pageSize - 1);
     if (error) {
       throw error;

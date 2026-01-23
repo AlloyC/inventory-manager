@@ -8,7 +8,8 @@ function page() {
       <PageHeader
         title="Dashboard"
         buttonOneText="New project"
-        buttonTwoText="New component"
+        buttonTwoText="Add component"
+        solidTwo={true}
       />
       <Cards />
       <DetailedSection />

@@ -35,5 +35,6 @@ export interface InventoryComponent {
 export interface Project {
   id: string;
   name: string;
-  status: "planning" | "in progress" | "completed";
+  description: string;
+  status: "planning" | "running" | "completed";
 }

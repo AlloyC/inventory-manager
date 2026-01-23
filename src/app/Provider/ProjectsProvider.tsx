@@ -42,10 +42,12 @@ const getProjects = async (
       .select("*")
       .eq("user_id", userSession.user.id)
       .eq("pinned", pinned || false)
+      .order("last_modified", { ascending: true })
       .range((page - 1) * pageSize, page * pageSize - 1);
     if (error) {
       throw error;
     }
+    console.log("Fetched projects:", projects);
     return projects || [];
   } catch (error) {
     console.error("Error fetching projects:", error);

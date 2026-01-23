@@ -31,7 +31,12 @@ const page = () => {
 
   return (
     <div className="w-full h-full">
-      <PageHeader title="Inventory" buttonOneText="New" buttonTwoText="CSV" />
+      <PageHeader
+        title="Inventory"
+        buttonOneText="New"
+        buttonTwoText="CSV"
+        solidOne={true}
+      />
       <div className="border-t-2 mt-5 grid">
         <div className="py-5 flex gap-2 justify-between items-center">
           <Input
