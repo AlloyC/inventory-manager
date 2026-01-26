@@ -9,7 +9,7 @@ import ProjectsProvider from "../Provider/ProjectsProvider";
 const layout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <SidebarProvider>
-      <div className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] w-full min-h-dvh overflow-x-hidden">
+      <div className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] w-full min-h-dvh ">
         <div className="row-start-1  relative row-end-3">
           <Sidebar />
         </div>

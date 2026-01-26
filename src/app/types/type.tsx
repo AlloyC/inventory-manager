@@ -5,6 +5,8 @@ export interface NavbarLink {
   name: string;
   path: string;
   Logo: any;
+  currentPath: string;
+  setCurrentPath: Dispatch<SetStateAction<string>>;
 }
 
 export interface UserData {
