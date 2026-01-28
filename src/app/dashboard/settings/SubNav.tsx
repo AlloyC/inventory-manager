@@ -1,11 +1,11 @@
 "use client";
 import { Bell, Palette, UserCircle } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import { useState } from "react";
 import Navigations from "../component/Navigations";
 
 const SubNav = () => {
-  const [currentPath, setCurrentPath] = React.useState("");
+  const [currentPath, setCurrentPath] = useState("");
   return (
     <div className="hidden lg:flex flex-col gap-2 justify-center items-center sticky top-0 pt-5 h-fit w-fit ">
       {/* <CustomLink link="account" text="Account" Icon={UserCircle} />

@@ -13,7 +13,12 @@ const PinnedSection = () => {
       </h3>
       {pinned.length > 0 ? (
         pinned.map((project, id) => (
-          <PinnedCard name={project.name} status={project.status} key={id} />
+          <PinnedCard
+            id={project.id}
+            name={project.name}
+            status={project.status}
+            key={id}
+          />
         ))
       ) : (
         <div className="text-center w-full text-gray-500 font-medium col-span-3">

@@ -21,9 +21,12 @@ import {
 import Image from "next/image";
 import { Dot, Filter, MoreHorizontal } from "lucide-react";
 import { useInventory, usePage } from "@/app/Provider/InventoryContext";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const page = () => {
   const { setPage, page } = usePage();
+  const router = useRouter();
   const { inventory } = useInventory();
   if (!inventory) {
     return null;
@@ -35,6 +38,11 @@ const page = () => {
         title="Inventory"
         buttonOneText="New"
         buttonTwoText="CSV"
+        buttonPropTwo={{ variant: "outline" }}
+        buttonPropOne={{
+          onClick: () => router.push("/dashboard/inventory?new-component=true"),
+          style: { display: "flex", alignItems: "center", gap: "5px" },
+        }}
         solidOne={true}
       />
       <div className="border-t-2 mt-5 grid">
@@ -50,12 +58,37 @@ const page = () => {
               <Filter className="w-3 h-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Billing</DropdownMenuItem>
-              <DropdownMenuItem>Team</DropdownMenuItem>
-              <DropdownMenuItem>Subscription</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link
+                  href="/dashboard/inventory?status=low-stock"
+                  className="w-full"
+                >
+                  Low stock
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link
+                  href="/dashboard/inventory?status=in-stock"
+                  className="w-full"
+                >
+                  In stock
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link
+                  href="/dashboard/inventory?status=out-of-stock"
+                  className="w-full"
+                >
+                  Out of stock
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/dashboard/inventory" className="w-full">
+                  All
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

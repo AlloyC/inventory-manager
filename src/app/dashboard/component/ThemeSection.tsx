@@ -9,7 +9,7 @@ const ThemeSection = () => {
       <StickyHeader title="Theme" />
       <div className="px-5 mt-2">
         <label htmlFor="theme-selection">
-          <div className="flex justify-between p-5 gap-8">
+          <div className="flex flex-col md:flex-row justify-between p-5 gap-8">
             <div className="border w-full rounded-xl flex flex-col justify-between">
               {/* <Image src={""} alt="" /> */}
               <div className="h-56"></div>
@@ -52,7 +52,7 @@ const ThemeSection = () => {
           </div>
         </label>
       </div>
-      <div className="border-b flex items-center justify-between bg-white p-5 text-lg font-medium">
+      <div className="border-b flex flex-col items-start md:flex-row gap-3 md:items-center justify-between bg-white p-5 text-lg font-medium">
         <h3>Accent Colors</h3>
         <div className="flex gap-2 w-fit">
           <Button

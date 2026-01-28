@@ -55,6 +55,26 @@ const getProjects = async (
   }
 };
 
+export const getProject = async (id: number) => {
+  const userSession = await getSession();
+  if (!userSession) return [];
+  try {
+    const { data: projects, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("user_id", userSession.user.id)
+      .eq("id", id);
+    if (error) {
+      throw error;
+    }
+    console.log("Fetched projects:", projects);
+    return projects || [];
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    return [];
+  }
+};
+
 const ProjectsProvider = ({ children }: { children: React.ReactNode }) => {
   const [pinned, setPinned] = useState<Project[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);

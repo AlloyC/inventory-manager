@@ -15,21 +15,21 @@ const ProfileSettingsSection = () => {
     <div id="account" className="">
       <StickyHeader title="Profile Settings" />
       <form action="" className="p-5">
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex  items-start gap-3 mb-5">
           {false ? (
             <Image src={""} alt="" />
           ) : (
             <UserCircle className="w-20 h-20 text-slate-400" />
           )}
           <div className="grid grid-cols-2 gap-2 ">
-            <Button type="button">Change Profile Picture</Button>
+            <Button type="button">Change</Button>
             <Button
               type="button"
               className="bg-transparent text-black border border-black hover:bg-transparent "
             >
               Remove
             </Button>
-            <span className="col-span-2">we support JPG, PNG, GIF</span>
+            <span className="col-span-2 text-sm">We support JPG, PNG, GIF</span>
           </div>
         </div>
         <label htmlFor="Username">Username</label>
@@ -49,7 +49,7 @@ const ProfileSettingsSection = () => {
             id="email"
             disabled
             value={"someone@gmail.com"}
-            className="-z-30 max-w-96"
+            className="-z-30 max-w-96 cursor-not-allowed"
           />
         </div>
         <div className="flex gap-2 flex-col max-w-96">
@@ -66,7 +66,24 @@ const ProfileSettingsSection = () => {
           </Button>
         </div>
         <div className="border-t mt-5 py-4">
-          <Field orientation="horizontal" className="text-red-600">
+          <Field
+            orientation="horizontal"
+            className="text-red-600 hidden md:flex"
+          >
+            <FieldContent>
+              <FieldLabel htmlFor="switch-notification" className="text-base">
+                Delete my account
+              </FieldLabel>
+              <FieldDescription>
+                Once you delete your account, there is no going back. Please be
+                certain.
+              </FieldDescription>
+            </FieldContent>
+            <Button type="button" variant="destructive">
+              Delete Account
+            </Button>
+          </Field>
+          <Field orientation="vertical" className="text-red-600 md:hidden">
             <FieldContent>
               <FieldLabel htmlFor="switch-notification" className="text-base">
                 Delete my account

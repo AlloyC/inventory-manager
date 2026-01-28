@@ -9,10 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const LowStockSection = () => {
   const { lowStock } = useInventory();
+  const router = useRouter();
+
   return (
     <div className="col-start-1 col-end-13 row-start-3 md:row-start-2 lg:col-start-5 md:col-end-8 border rounded-xl flex flex-col">
       <div className="flex gap-1 items-center p-3 border-b">
@@ -20,6 +22,7 @@ const LowStockSection = () => {
         {lowStock && (
           <Button
             variant="link"
+            onClick={() => router.push("/dashboard/inventory?filter=low-stock")}
             className="ml-auto italic hover:text-blue-500 p-0"
           >
             View All

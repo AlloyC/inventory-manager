@@ -9,8 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useRouter } from "next/navigation";
 
 const SummaryComponentsSection = () => {
+  const router = useRouter();
   const { inventory } = useInventory();
   if (!inventory) {
     return null;
@@ -20,6 +22,7 @@ const SummaryComponentsSection = () => {
       <div className="flex gap-1 items-center p-3 border-b">
         <h3 className="font-medium text-lg">Components</h3>
         <Button
+          onClick={() => router.push("/dashboard/inventory")}
           variant="link"
           className="ml-auto italic hover:text-blue-500 p-0"
         >

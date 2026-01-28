@@ -5,8 +5,8 @@ export interface NavbarLink {
   name: string;
   path: string;
   Logo: any;
-  currentPath: string;
-  setCurrentPath: Dispatch<SetStateAction<string>>;
+  currentPath?: string;
+  setCurrentPath?: Dispatch<SetStateAction<string>>;
 }
 
 export interface UserData {
@@ -35,8 +35,11 @@ export interface InventoryComponent {
 }
 
 export interface Project {
-  id: string;
+  id?: string;
   name: string;
   description: string;
   status: "planning" | "running" | "completed";
+  image?: string[];
+  components: InventoryComponent[];
+  steps?: string[];
 }

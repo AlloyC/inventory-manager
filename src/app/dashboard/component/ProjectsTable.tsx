@@ -18,9 +18,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Dot, Filter, Grid, Grid2X2, List, MoreVertical } from "lucide-react";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useProjects } from "@/app/Provider/ProjectsProvider";
+import Link from "next/link";
 
 const ProjectsTable = () => {
   const { projects } = useProjects();
@@ -42,12 +44,11 @@ const ProjectsTable = () => {
               <Filter className="w-3 h-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Billing</DropdownMenuItem>
-              <DropdownMenuItem>Team</DropdownMenuItem>
-              <DropdownMenuItem>Subscription</DropdownMenuItem>
+              <DropdownMenuItem>Planning</DropdownMenuItem>
+              <DropdownMenuItem>Running</DropdownMenuItem>
+              <DropdownMenuItem>Completed</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <button className="text-gray-500">
@@ -89,7 +90,24 @@ const ProjectsTable = () => {
                       <MoreVertical />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link
+                          href={`/dashboard/projects/${project.id}`}
+                          key={index}
+                          className="w-full"
+                        >
+                          View
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link
+                          href={`/dashboard/projects/edit-project?id=${project.id}`}
+                          key={index}
+                          className="w-full"
+                        >
+                          Edit
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem>Pin</DropdownMenuItem>
                       <DropdownMenuItem>Rename</DropdownMenuItem>
                       <DropdownMenuItem>Delete</DropdownMenuItem>

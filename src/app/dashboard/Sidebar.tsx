@@ -1,20 +1,4 @@
 "use client";
-// import Logo from "../../../public/assets/svgs/Logo";
-// import {
-//   ChevronLeft,
-//   FolderKanban,
-//   LayoutDashboardIcon,
-//   LogOut,
-//   Package,
-//   Settings,
-//   SidebarClose,
-//   SidebarOpen,
-// } from "lucide-react";
-// import { NavbarLink } from "../types/type";
-// import Navigations from "./component/Navigations";
-// import { useState } from "react";
-// import Image from "next/image";
-// import { SidebarHeader } from "@/components/ui/sidebar";
 
 import {
   Sidebar as AppSidebar,
@@ -37,8 +21,8 @@ import {
   Settings,
 } from "lucide-react";
 import Logo from "../../../public/assets/svgs/Logo";
-import Link from "next/link";
 import Navigations from "./component/Navigations";
+import { useState } from "react";
 
 const navbarLinks: NavbarLink[] = [
   { name: "dashboard", path: "/dashboard", Logo: LayoutDashboardIcon },
@@ -48,6 +32,7 @@ const navbarLinks: NavbarLink[] = [
 ];
 
 const Sidebar = () => {
+  const [currentPath, setCurrentPath] = useState("");
   return (
     <AppSidebar className="w-64">
       <SidebarHeader>
@@ -57,7 +42,13 @@ const Sidebar = () => {
         {navbarLinks.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <Navigations name={item.name} path={item.path} Logo={item.Logo} />
+              <Navigations
+                currentPath={currentPath}
+                setCurrentPath={setCurrentPath}
+                name={item.name}
+                path={item.path}
+                Logo={item.Logo}
+              />
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
