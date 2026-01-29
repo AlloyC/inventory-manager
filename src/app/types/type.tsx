@@ -39,7 +39,7 @@ export interface Project {
   name: string;
   description: string;
   status: "planning" | "running" | "completed";
-  image?: string[];
-  components: InventoryComponent[];
-  steps?: string[];
+  images?: { url: string }[];
+  project_components: InventoryComponent[];
+  steps?: { step: string }[];
 }

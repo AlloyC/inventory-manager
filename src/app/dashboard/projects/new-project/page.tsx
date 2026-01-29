@@ -15,8 +15,10 @@ import { Project } from "@/app/types/type";
 import { useRouter } from "next/navigation";
 // fix supabase error i.e components and steps should not be optional in new project
 interface NewProjectProps extends Project {
-  components: (Project["components"][number] & { qty?: number })[];
-  steps: string[];
+  project_components: (Project["project_components"][number] & {
+    qty?: number;
+  })[];
+  steps: { step: string }[];
 }
 
 const NewProjects = () => {
@@ -25,8 +27,9 @@ const NewProjects = () => {
     name: "",
     description: "",
     status: "planning",
-    components: [],
+    project_components: [],
     steps: [],
+    images: [],
   });
   const router = useRouter();
 

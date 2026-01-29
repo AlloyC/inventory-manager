@@ -13,19 +13,22 @@ import { useInventory } from "../../../Provider/InventoryContext";
 import { useEffect, useState } from "react";
 import { Project } from "@/app/types/type";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getProject } from "@/app/Provider/ProjectsProvider";
+import { getProject, updateProject } from "@/app/Provider/ProjectsProvider";
+import Image from "next/image";
 
 interface NewProjectProps extends Project {
-  components: (Project["components"][number] & { qty?: number })[];
-  steps: string[];
+  project_components: (Project["project_components"][number] & {
+    qty?: number;
+  })[];
+  steps: { step: string }[];
 }
 
 const EditProjects = () => {
   const { inventory } = useInventory();
-  const [length, setLength] = useState(1);
   const param = useSearchParams();
   const id = param.get("id");
   const [projectData, setProjectData] = useState<NewProjectProps | null>(null);
+  const [images, setImages] = useState<{ file: File; url: string }[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -36,12 +39,6 @@ const EditProjects = () => {
     }
   }, [id]);
 
-  useEffect(() => {
-    if (projectData) {
-      setLength(projectData.components?.length || 0);
-    }
-  }, [projectData]);
-
   if (!inventory && !projectData) {
     return null;
   }
@@ -51,13 +48,53 @@ const EditProjects = () => {
     router.back();
   };
 
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const imageUrls = Array.from(files).map((file) => {
+        const url = URL.createObjectURL(file);
+        setImages((prev) => [...prev, { file, url }]);
+        return url;
+      });
+      console.log("imageurls: ", imageUrls, projectData?.images);
+
+      setProjectData((prev) =>
+        prev
+          ? {
+              ...prev,
+              images: [
+                ...(prev.images || []),
+                ...imageUrls.map((url) => ({ url })),
+              ],
+            }
+          : {
+              images: imageUrls.map((url) => ({ url })),
+              name: "",
+              description: "",
+              status: "planning",
+              project_components: [],
+              steps: [],
+            },
+      );
+    }
+  };
+
+  const handleUploadEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id) return;
+    updateProject(projectData!, images);
+  };
+
   if (!inventory) {
+    return null;
+  }
+  if (!projectData) {
     return null;
   }
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex w-full items-center justify-between mb-5">
-        <h2 className="font-medium text-lg">New Projects</h2>
+        <h2 className="font-medium text-lg">Edit Projects</h2>
         <Button onClick={handleBack} variant={"link"}>
           <ChevronLeft />
           <span>Back</span>
@@ -78,7 +115,7 @@ const EditProjects = () => {
                       name: e.target.value,
                       description: "",
                       status: "planning",
-                      components: [],
+                      project_components: [],
                       steps: [],
                     },
               )
@@ -103,7 +140,7 @@ const EditProjects = () => {
                       name: "",
                       description: e.target.value,
                       status: "planning",
-                      components: [],
+                      project_components: [],
                       steps: [],
                     },
               )
@@ -114,31 +151,90 @@ const EditProjects = () => {
             {projectData?.description.length || 0}/100
           </span>
         </label>
-        <label htmlFor="images">
-          <span className="font-medium mb-2 block">Images</span>
-          <Input type="file" id="images" multiple max={5} name="images" />
-        </label>
-        <Select value={projectData?.status}>
+        <div>
+          <label htmlFor="images">
+            <span className="font-medium mb-2 block">Images</span>
+            <Input
+              type="file"
+              id="images"
+              multiple
+              accept="image/*"
+              maxLength={
+                projectData.images?.length ? 5 - projectData.images?.length : 5
+              }
+              onChange={handleImagesChange}
+              name="images"
+            />
+          </label>
+          {projectData?.images && projectData.images.length > 0 && (
+            <div className="flex gap-2 mt-2 overflow-x-auto">
+              {projectData.images.map((image, index) => (
+                <div key={index} className="relative">
+                  <Image
+                    src={image.url}
+                    alt={`Project Image ${index + 1}`}
+                    width={100}
+                    height={100}
+                    className="rounded-md"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="absolute top-1 right-1 rounded-full bg-white p-1"
+                    onClick={() => {
+                      // Remove image from images state
+                      setImages((prev) => {
+                        const updatedImages = prev.findIndex(
+                          (img) => img.url === image.url,
+                        );
+                        if (updatedImages !== -1) {
+                          const newImages = [...prev];
+                          newImages.splice(updatedImages, 1);
+                          return newImages;
+                        }
+                        return prev;
+                      });
+                      // Remove image from projectData images
+                      setProjectData((prev) => {
+                        if (prev && prev.images) {
+                          const updatedImages = prev.images.filter(
+                            (_, imgIndex) => imgIndex !== index,
+                          );
+                          return { ...prev, images: updatedImages };
+                        }
+                        return prev;
+                      });
+                    }}
+                  >
+                    <X />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <Select
+          onValueChange={(e) =>
+            setProjectData((prev) =>
+              prev
+                ? { ...prev, status: e as "planning" | "running" | "completed" }
+                : prev,
+            )
+          }
+          value={projectData?.status}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem
-              value="planning"
-              className="text-gray-400 cursor-pointer"
-            >
+            <SelectItem value="planning" className="cursor-pointer">
               Planning
             </SelectItem>
-            <SelectItem
-              value="in progress"
-              className="text-gray-400 cursor-pointer"
-            >
+            <SelectItem value="running" className="cursor-pointer">
               In progress
             </SelectItem>
-            <SelectItem
-              value="completed"
-              className="text-gray-400 cursor-pointer"
-            >
+            <SelectItem value="completed" className="cursor-pointer">
               Completed
             </SelectItem>
           </SelectContent>
@@ -154,45 +250,52 @@ const EditProjects = () => {
                 </span>
               )}
             </h3>
-            {projectData?.components.length === 0 && inventory.length !== 0 && (
-              <Button
-                variant={"ghost"}
-                onClick={() =>
-                  setProjectData((prev) =>
-                    prev
-                      ? {
-                          ...prev,
-                          components: [inventory[0]],
-                        }
-                      : {
-                          name: "",
-                          description: "",
-                          status: "planning",
-                          components: [inventory[0]],
-                          steps: [],
-                        },
-                  )
-                }
-              >
-                <Plus />
-              </Button>
-            )}
+            {projectData?.project_components.length === 0 &&
+              inventory.length !== 0 && (
+                <Button
+                  variant={"ghost"}
+                  onClick={() =>
+                    setProjectData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            project_components: [{ ...inventory[0], qty: 1 }],
+                          }
+                        : {
+                            name: "",
+                            description: "",
+                            status: "planning",
+                            project_components: [{ ...inventory[0], qty: 1 }],
+                            steps: [],
+                          },
+                    )
+                  }
+                >
+                  <Plus />
+                </Button>
+              )}
           </div>
-          {projectData?.components.map((component, id) => (
+          {projectData?.project_components.map((component, id) => (
             <div key={id}>
               <div className="flex items-center gap-2 mb-2">
                 <Select
                   onValueChange={(e) =>
                     setProjectData((prev) => {
                       if (prev) {
-                        const updatedComponents = [...prev.components];
+                        const updatedComponents = [...prev.project_components];
                         const selectedComponent = inventory.find(
                           (comp) => comp.name === e,
                         );
                         if (selectedComponent) {
-                          updatedComponents[id] = selectedComponent;
+                          updatedComponents[id] = {
+                            ...selectedComponent,
+                            qty: 1,
+                          };
                         }
-                        return { ...prev, components: updatedComponents };
+                        return {
+                          ...prev,
+                          project_components: updatedComponents,
+                        };
                       }
                       return prev;
                     })
@@ -217,12 +320,15 @@ const EditProjects = () => {
                   onChange={(e) =>
                     setProjectData((prev) => {
                       if (prev) {
-                        const updatedComponents = [...prev.components];
+                        const updatedComponents = [...prev.project_components];
                         updatedComponents.splice(id, 1, {
                           ...updatedComponents[id],
                           qty: Number(e.target.value),
                         });
-                        return { ...prev, components: updatedComponents };
+                        return {
+                          ...prev,
+                          project_components: updatedComponents,
+                        };
                       }
                       return prev;
                     })
@@ -240,16 +346,16 @@ const EditProjects = () => {
                       prev
                         ? {
                             ...prev,
-                            components: [
-                              ...prev.components.slice(0, id),
-                              ...prev.components.slice(id + 1),
+                            project_components: [
+                              ...prev.project_components.slice(0, id),
+                              ...prev.project_components.slice(id + 1),
                             ],
                           }
                         : {
                             name: "",
                             description: "",
                             status: "planning",
-                            components: [inventory[0]],
+                            project_components: [{ ...inventory[0], qty: 1 }],
                             steps: [],
                           },
                     )
@@ -258,7 +364,7 @@ const EditProjects = () => {
                   <Minus />
                 </Button>
               </div>
-              {id === projectData.components.length - 1 && (
+              {id === projectData.project_components.length - 1 && (
                 <Button
                   type="button"
                   variant={"ghost"}
@@ -269,13 +375,16 @@ const EditProjects = () => {
                       prev
                         ? {
                             ...prev,
-                            components: [...prev.components, inventory[0]],
+                            project_components: [
+                              ...prev.project_components,
+                              { ...inventory[0], qty: 1 },
+                            ],
                           }
                         : {
                             name: "",
                             description: "",
                             status: "planning",
-                            components: [inventory[0]],
+                            project_components: [{ ...inventory[0], qty: 1 }],
                             steps: [],
                           },
                     )
@@ -300,14 +409,14 @@ const EditProjects = () => {
                     prev
                       ? {
                           ...prev,
-                          steps: [""],
+                          steps: [{ step: "" }],
                         }
                       : {
                           name: "",
                           description: "",
                           status: "planning",
-                          components: [inventory[0]],
-                          steps: [],
+                          project_components: [{ ...inventory[0], qty: 1 }],
+                          steps: [{ step: "" }],
                         },
                   )
                 }
@@ -325,13 +434,13 @@ const EditProjects = () => {
                     setProjectData((prev) => {
                       if (prev) {
                         const updatedSteps = [...prev.steps];
-                        updatedSteps.splice(id, 1, e.target.value);
+                        updatedSteps.splice(id, 1, { step: e.target.value });
                         return { ...prev, steps: updatedSteps };
                       }
                       return prev;
                     })
                   }
-                  value={step}
+                  value={step.step}
                 />
                 <Button
                   type="button"
@@ -358,7 +467,7 @@ const EditProjects = () => {
               </div>
               {/* Add step button after last step if last step is not empty */}
               {id === projectData.steps.length - 1 &&
-                projectData?.steps[id] !== "" && (
+                projectData?.steps[id].step !== "" && (
                   <Button
                     type="button"
                     variant={"ghost"}
@@ -369,7 +478,7 @@ const EditProjects = () => {
                         prev
                           ? {
                               ...prev,
-                              steps: [...prev.steps, ""],
+                              steps: [...prev.steps, { step: "" }],
                             }
                           : prev,
                       )
@@ -381,10 +490,13 @@ const EditProjects = () => {
             </div>
           ))}
         </div>
-        <Button>Create Project</Button>
+        <Button onClick={handleUploadEdit}>Create Project</Button>
       </form>
     </div>
   );
 };
 
 export default EditProjects;
+
+// Fix the project_components to accept qty and make sure qty is handled properly in all places
+// fix project data to allow steps to be independent of inventory components and project_components
