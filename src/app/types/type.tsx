@@ -40,6 +40,11 @@ export interface Project {
   description: string;
   status: "planning" | "running" | "completed";
   images?: { url: string }[];
-  project_components: InventoryComponent[];
-  steps?: { step: string }[];
+  project_components: (Partial<InventoryComponent> & { qty: number })[] | [];
+  steps: { step: string }[] | [];
+}
+
+export interface LabelsProps {
+  projectData: Project | null;
+  setProjectData: Dispatch<SetStateAction<Project | null>>;
 }

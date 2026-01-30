@@ -2,7 +2,7 @@
 import { getProject, useProjects } from "@/app/Provider/ProjectsProvider";
 import { Project as ProjectDetails } from "@/app/types/type";
 import { Button } from "@/components/ui/button";
-import { Dot, MoreHorizontal, Trash2 } from "lucide-react";
+import { Component, Dot, MoreHorizontal, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 
 const Project = () => {
   const { id } = useParams();
-  const [project, setProject] = useState<ProjectDetails | null>(null);
+  const [project, setProject] = useState<Partial<ProjectDetails> | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -68,14 +68,14 @@ const Project = () => {
       <div>
         <h3>Images</h3>
         <div>
-          {project.image?.map((img) => (
-            <Image src={img} alt="" />
+          {project.images?.map((img) => (
+            <Image key={img.url} src={img.url} alt="" />
           ))}
         </div>
       </div>
       <div>
         <h3>Components</h3>
-        {project.components ? (
+        {project.project_components ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -88,16 +88,20 @@ const Project = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {project.components.map((component) => (
+              {project.project_components.map((component) => (
                 <TableRow key={component.id}>
                   <TableCell className="font-medium">
-                    <Image
-                      src={component.image}
-                      alt="Component Image"
-                      width={20}
-                      height={20}
-                      className="rounded"
-                    />
+                    {component.image ? (
+                      <Image
+                        src={component.image}
+                        alt="Component Image"
+                        width={20}
+                        height={20}
+                        className="rounded"
+                      />
+                    ) : (
+                      <Component width={20} height={20} />
+                    )}
                   </TableCell>
                   <TableCell>{component.name}</TableCell>
                   <TableCell>{component.location}</TableCell>
@@ -146,9 +150,9 @@ const Project = () => {
         <div>
           {project.steps ? (
             project.steps.map((step) => (
-              <div key={step}>
+              <div key={step.step}>
                 <Input type="checkbox" />
-                <p>{step}</p>
+                <p>{step.step}</p>
               </div>
             ))
           ) : (

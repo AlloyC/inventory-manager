@@ -5,7 +5,7 @@ import supabase from "../SupabaseCredentials";
 import { getSession } from "./UserContext";
 
 const Projects = createContext<{
-  pinned: Project[];
+  pinned: Partial<Project>[];
   projects: Project[];
 } | null>(null);
 
@@ -56,8 +56,9 @@ const getProjects = async (
 };
 
 export const getProject = async (id: number) => {
+  let data: Project[] = [];
   const userSession = await getSession();
-  if (!userSession) return [];
+  if (!userSession) return data;
   try {
     const { data: projects, error } = await supabase
       .from("projects")
@@ -78,11 +79,11 @@ export const getProject = async (id: number) => {
       throw error;
     }
     console.log("Fetched projects:", projects);
-    return projects || [];
+    data = projects || [];
   } catch (error) {
     console.error("Error fetching projects:", error);
-    return [];
   }
+  return data;
 };
 
 export const updateProject = async (
@@ -204,7 +205,7 @@ const uploadImagesToSupabase = async (
 };
 
 const ProjectsProvider = ({ children }: { children: React.ReactNode }) => {
-  const [pinned, setPinned] = useState<Project[]>([]);
+  const [pinned, setPinned] = useState<Partial<Project>[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [page, setPage] = useState<number>(1);
 
@@ -214,7 +215,15 @@ const ProjectsProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     getProjects(1, 3, true)
-      .then((projects) => setPinned(projects))
+      .then((projects) =>
+        setPinned(
+          projects.map((project) => ({
+            id: project.id,
+            name: project.name,
+            status: project.status,
+          })),
+        ),
+      )
       .catch((error) => {
         console.error("Error fetching pinned projects:", error);
       });
