@@ -70,7 +70,9 @@ export const getProject = async (id: number) => {
         name,
         qty),
         steps (
-        step)
+        step),
+        images (
+        url)
       `,
       )
       .eq("user_id", userSession.user.id)
@@ -126,6 +128,52 @@ export const updateProject = async (
     console.error("Error updating project:", error);
   }
 };
+export const createProject = async (
+  data: Project,
+  images: {
+    file: File;
+    url: string;
+  }[],
+) => {
+  try {
+    console.log("Final project data to update:", data);
+
+    const { data: newData, error } = await supabase.rpc(
+      "create_project_with_details",
+      {
+        p_project_name: data.name,
+        p_project_description: data.description,
+        p_project_status: data.status,
+        p_components: data.project_components,
+        p_steps: data.steps,
+      },
+    );
+    if (error) {
+      throw error;
+    }
+
+    console.log("New project created with ID:", newData);
+
+    const result = await uploadImagesToSupabase(images, newData);
+    if (!result) return;
+    const { imageUrls } = result;
+    const imagesData = imageUrls.map((img) => ({
+      url: img.url,
+      project_id: newData,
+    }));
+
+    // insert supabase image with the new URLs
+    const { data: imageData, error: insertError } = await supabase
+      .from("images")
+      .insert(imagesData);
+
+    if (insertError) {
+      throw insertError;
+    }
+  } catch (error) {
+    console.error("Error creating project:", error);
+  }
+};
 
 const getExistingProjectImages = async (projectId: string) => {
   try {
@@ -155,7 +203,7 @@ const deleteExistingProjectImages = async (
 ) => {
   try {
     const deletedImages = urls?.filter((url) =>
-      images.some((img) => img.url === url.url),
+      images.find((img) => img.url === url.url) ? false : true,
     );
     console.log("Deleted images:", deletedImages);
 
@@ -163,6 +211,13 @@ const deleteExistingProjectImages = async (
       const { error } = await supabase.storage
         .from("project_images")
         .remove(deletedImages!.map((img) => img.url));
+      if (error) {
+        throw error;
+      }
+    } else if (urls.length > 0 && images.length === 0) {
+      const { error } = await supabase.storage
+        .from("project_images")
+        .remove(urls!.map((img) => img.url));
       if (error) {
         throw error;
       }

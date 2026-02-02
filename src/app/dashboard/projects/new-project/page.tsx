@@ -5,7 +5,7 @@ import { useInventory } from "../../../Provider/InventoryContext";
 import { useEffect, useState } from "react";
 import { Project } from "@/app/types/type";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getProject } from "@/app/Provider/ProjectsProvider";
+import { createProject, getProject } from "@/app/Provider/ProjectsProvider";
 import NameLabel from "../formComponent/NameLabel";
 import DescriptionLabel from "../formComponent/DescriptionLabel";
 import ImagesLabel from "../formComponent/ImagesLabel";
@@ -76,6 +76,7 @@ const NewProjects = () => {
           text={"Create Project"}
           projectData={projectData}
           images={images}
+          action={createProject}
         />
       </form>
     </div>

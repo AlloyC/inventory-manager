@@ -5,7 +5,7 @@ import { useInventory } from "../../../Provider/InventoryContext";
 import { useEffect, useState } from "react";
 import { Project } from "@/app/types/type";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getProject } from "@/app/Provider/ProjectsProvider";
+import { getProject, updateProject } from "@/app/Provider/ProjectsProvider";
 import NameLabel from "../formComponent/NameLabel";
 import DescriptionLabel from "../formComponent/DescriptionLabel";
 import ImagesLabel from "../formComponent/ImagesLabel";
@@ -83,6 +83,7 @@ const EditProjects = () => {
           projectData={projectData}
           text={"Update Project"}
           images={images}
+          action={updateProject}
         />
       </form>
     </div>

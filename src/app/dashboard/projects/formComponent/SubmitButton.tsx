@@ -8,15 +8,23 @@ const SubmitButton = ({
   projectData,
   images,
   text,
+  action,
 }: {
   projectData: Project | null;
   images: { file: File; url: string }[];
   text: string;
+  action: (
+    data: Project,
+    images: {
+      file: File;
+      url: string;
+    }[],
+  ) => Promise<void>;
 }) => {
   const handleUploadEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!projectData) return;
-    updateProject(projectData!, images);
+    action(projectData!, images);
   };
   return <Button onClick={handleUploadEdit}>{text}</Button>;
 };

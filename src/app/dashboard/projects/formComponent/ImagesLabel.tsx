@@ -1,13 +1,25 @@
 "use client";
 
+import supabase from "@/app/SupabaseCredentials";
 import { LabelsProps } from "@/app/types/type";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
-const ImagesLabel = ({ projectData, setProjectData, setImages }: (LabelsProps & { setImages: React.Dispatch<React.SetStateAction<{ file: File; url: string }[]>> })) => {
+const ImagesLabel = ({
+  projectData,
+  setProjectData,
+  setImages,
+}: LabelsProps & {
+  setImages: React.Dispatch<
+    React.SetStateAction<{ file: File; url: string }[]>
+  >;
+}) => {
+  const [editedUrls, setEditedUrls] = useState<string[]>([]);
   const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("Image change event:", editedUrls);
     const files = e.target.files;
     if (files) {
       // Create object URLs for each selected file and update state
@@ -22,8 +34,55 @@ const ImagesLabel = ({ projectData, setProjectData, setImages }: (LabelsProps & 
         ...prev!,
         images: [...(prev?.images || []), ...imageUrls.map((url) => ({ url }))],
       }));
+      setEditedUrls((prev) => [...prev, ...imageUrls]);
     }
   };
+
+  useEffect(() => {
+    const rename = async (image: string, renamedUrls: string[]) => {
+      if (
+        !image &&
+        (!image.includes("https") ||
+          !image.includes("http") ||
+          image.includes("blob:"))
+      ) {
+        renamedUrls.push(image);
+        return;
+      }
+
+      const { data, error } = await supabase.storage
+        .from("project_images")
+        .createSignedUrl(image, 3600);
+
+      if (error) {
+        throw error;
+      }
+
+      renamedUrls.push(data.signedUrl!);
+      return;
+    };
+    (() => {
+      const renamedUrls: string[] = [];
+      projectData?.images &&
+        editedUrls.length === 0 &&
+        projectData.images.forEach(async (img) => {
+          await rename(img.url, renamedUrls)
+            .finally(() => {
+              setEditedUrls(renamedUrls);
+            })
+            .catch((err) => console.error(err));
+        });
+    })();
+    return () => {
+      // Revoke object URLs to avoid memory leaks
+      editedUrls.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, []);
+
   return (
     <div>
       <label htmlFor="images">
@@ -33,17 +92,17 @@ const ImagesLabel = ({ projectData, setProjectData, setImages }: (LabelsProps & 
           id="images"
           multiple
           accept="image/*"
-          maxLength={ 5 }
+          maxLength={5}
           onChange={handleImagesChange}
           name="images"
         />
       </label>
-      {projectData?.images && projectData.images.length > 0 && (
+      {editedUrls && editedUrls.length > 0 && (
         <div className="flex gap-2 mt-2 overflow-x-auto">
-          {projectData.images.map((image, index) => (
+          {editedUrls.map((image, index) => (
             <div key={index} className="relative">
               <Image
-                src={image.url}
+                src={image}
                 alt={`Project Image ${index + 1}`}
                 width={100}
                 height={100}
@@ -55,14 +114,24 @@ const ImagesLabel = ({ projectData, setProjectData, setImages }: (LabelsProps & 
                 size="icon-sm"
                 className="absolute top-1 right-1 rounded-full bg-white p-1"
                 onClick={() => {
+                  const index = [...editedUrls].findIndex(
+                    (img) => img === image,
+                  );
                   // Remove image from images state
                   setImages((prev) => {
-                    const updatedImages = prev.findIndex(
-                      (img) => img.url === image.url,
-                    );
-                    if (updatedImages !== -1) {
+                    const index = prev.findIndex((img) => img.url === image);
+                    if (index !== -1) {
                       const newImages = [...prev];
-                      newImages.splice(updatedImages, 1);
+                      newImages.splice(index, 1);
+                      return newImages;
+                    }
+                    return prev;
+                  });
+                  // Remove image from images state
+                  setEditedUrls((prev) => {
+                    if (index !== -1) {
+                      const newImages = [...prev];
+                      newImages.splice(index, 1);
                       return newImages;
                     }
                     return prev;
