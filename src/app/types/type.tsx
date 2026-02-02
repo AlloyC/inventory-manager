@@ -40,7 +40,13 @@ export interface Project {
   description: string;
   status: "planning" | "running" | "completed";
   images?: { url: string }[];
-  project_components: (Partial<InventoryComponent> & { qty: number })[] | [];
+  project_components:
+    | (Partial<InventoryComponent> & {
+        qty: number;
+        component_id: string;
+        location?: string;
+      })[]
+    | [];
   steps: { step: string }[] | [];
 }
 

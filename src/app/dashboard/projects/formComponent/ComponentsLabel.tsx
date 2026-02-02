@@ -37,13 +37,25 @@ const ComponentsLabel = ({
                   prev
                     ? {
                         ...prev,
-                        project_components: [{ ...inventory[0], qty: 1 }],
+                        project_components: [
+                          {
+                            ...inventory[0],
+                            qty: 1,
+                            component_id: inventory[0].id,
+                          },
+                        ],
                       }
                     : {
                         name: "",
                         description: "",
                         status: "planning",
-                        project_components: [{ ...inventory[0], qty: 1 }],
+                        project_components: [
+                          {
+                            ...inventory[0],
+                            qty: 1,
+                            component_id: inventory[0].id,
+                          },
+                        ],
                         steps: [],
                       },
                 )
@@ -68,6 +80,7 @@ const ComponentsLabel = ({
                       updatedComponents[id] = {
                         ...selectedComponent,
                         qty: 1,
+                        component_id: selectedComponent.id,
                       };
                     }
                     return {
@@ -133,7 +146,13 @@ const ComponentsLabel = ({
                         name: "",
                         description: "",
                         status: "planning",
-                        project_components: [{ ...inventory[0], qty: 1 }],
+                        project_components: [
+                          {
+                            ...inventory[0],
+                            qty: 1,
+                            component_id: inventory[0].id,
+                          },
+                        ],
                         steps: [],
                       },
                 )
@@ -155,14 +174,24 @@ const ComponentsLabel = ({
                         ...prev,
                         project_components: [
                           ...prev.project_components,
-                          { ...inventory[0], qty: 1 },
+                          {
+                            ...inventory[0],
+                            qty: 1,
+                            component_id: inventory[0].id,
+                          },
                         ],
                       }
                     : {
                         name: "",
                         description: "",
                         status: "planning",
-                        project_components: [{ ...inventory[0], qty: 1 }],
+                        project_components: [
+                          {
+                            ...inventory[0],
+                            qty: 1,
+                            component_id: inventory[0].id,
+                          },
+                        ],
                         steps: [],
                       },
                 )

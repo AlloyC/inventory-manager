@@ -8,6 +8,30 @@ import { X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+// Function to rename image URLs from Supabase storage
+export const rename = async (image: string, renamedUrls: string[]) => {
+  if (
+    !image &&
+    (!image.includes("https") ||
+      !image.includes("http") ||
+      image.includes("blob:"))
+  ) {
+    renamedUrls.push(image);
+    return;
+  }
+
+  const { data, error } = await supabase.storage
+    .from("project_images")
+    .createSignedUrl(image, 3600);
+
+  if (error) {
+    throw error;
+  }
+
+  renamedUrls.push(data.signedUrl!);
+  return;
+};
+
 const ImagesLabel = ({
   projectData,
   setProjectData,
@@ -39,28 +63,6 @@ const ImagesLabel = ({
   };
 
   useEffect(() => {
-    const rename = async (image: string, renamedUrls: string[]) => {
-      if (
-        !image &&
-        (!image.includes("https") ||
-          !image.includes("http") ||
-          image.includes("blob:"))
-      ) {
-        renamedUrls.push(image);
-        return;
-      }
-
-      const { data, error } = await supabase.storage
-        .from("project_images")
-        .createSignedUrl(image, 3600);
-
-      if (error) {
-        throw error;
-      }
-
-      renamedUrls.push(data.signedUrl!);
-      return;
-    };
     (() => {
       const renamedUrls: string[] = [];
       projectData?.images &&

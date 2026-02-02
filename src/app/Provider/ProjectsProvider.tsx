@@ -64,24 +64,42 @@ export const getProject = async (id: number) => {
       .from("projects")
       .select(
         `
-        *,
-        project_components (
-        id,
-        name,
-        qty),
-        steps (
-        step),
-        images (
-        url)
-      `,
+    *,
+    project_components (
+      id,
+      component_id,
+      name,
+      qty,
+      components (
+        location
+      )
+    ),
+    steps (
+      step
+    ),
+    images (
+      url
+    )
+  `,
       )
       .eq("user_id", userSession.user.id)
       .eq("id", id);
+
     if (error) {
       throw error;
     }
-    console.log("Fetched projects:", projects);
-    data = projects || [];
+
+    const formatted = projects.map((p) => ({
+      ...p,
+      project_components: p.project_components.map((pc: any) => ({
+        ...pc,
+        location: pc.components?.location,
+      })),
+    }));
+    data = formatted || [];
+
+    console.log("Fetched projects:", formatted);
+    // data = projects || [];
   } catch (error) {
     console.error("Error fetching projects:", error);
   }

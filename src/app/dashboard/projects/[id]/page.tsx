@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -24,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { rename } from "../formComponent/ImagesLabel";
 
 const Project = () => {
   const { id } = useParams();
@@ -33,8 +33,22 @@ const Project = () => {
   useEffect(() => {
     (async () => {
       const project = await getProject(Number(id));
+
+      if (!project) return;
+      const images: string[] = [];
+      project[0].images?.forEach(async (img) => {
+        await rename(img.url, images)
+          .finally(() => {
+            setProject(() => {
+              project[0].images = images.map((url) => ({ url }));
+              return { ...project[0] };
+            });
+          })
+          .catch((error) => {
+            console.error("Error renaming image URL:", error);
+          });
+      });
       console.log(id, project);
-      setProject(project[0]);
     })();
   }, [id]);
 
@@ -46,35 +60,44 @@ const Project = () => {
     return null;
   }
 
-  if (!project) return <div>project page {id}</div>;
+  if (!project) return null;
 
   return (
-    <div>
-      <header>
-        <h2>{project.name}</h2>
-        <div>
-          <Button type="button" className="">
-            Edit
-          </Button>
-          <Button type="button" className="">
+    <div className="space-y-3">
+      <header className="flex justify-between items-center">
+        <h2 className="font-medium text-lg">{project.name}</h2>
+        <div className="flex gap-2 items-center">
+          <Button type="button">Edit</Button>
+          <Button
+            type="button"
+            variant={"ghost"}
+            className="border-red-600 text-red-600 hover:border hover:text-red-600"
+          >
             <Trash2 />
           </Button>
         </div>
       </header>
-      <div>
-        <h3>Description</h3>
-        <p>{project.description}</p>
+      <div className="space-y-2">
+        <h3 className="font-medium">Description</h3>
+        <p className="indent-4">{project.description}</p>
       </div>
-      <div>
-        <h3>Images</h3>
-        <div>
+      <div className="space-y-2">
+        <h3 className="font-medium">Images</h3>
+        <div className="flex items-center gap-5 px-4">
           {project.images?.map((img) => (
-            <Image key={img.url} src={img.url} alt="" />
+            <Image
+              key={img.url}
+              width={200}
+              height={200}
+              className="rounded-xl"
+              src={img.url}
+              alt=""
+            />
           ))}
         </div>
       </div>
-      <div>
-        <h3>Components</h3>
+      <div className="space-y-2">
+        <h3 className="font-medium">Components</h3>
         {project.project_components ? (
           <Table>
             <TableHeader>
@@ -82,9 +105,7 @@ const Project = () => {
                 <TableHead>Image</TableHead>
                 <TableHead>Component name</TableHead>
                 <TableHead>Location</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Current Qty</TableHead>
-                <TableHead>Action</TableHead>
+                <TableHead>Qty</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -105,24 +126,7 @@ const Project = () => {
                   </TableCell>
                   <TableCell>{component.name}</TableCell>
                   <TableCell>{component.location}</TableCell>
-                  <TableCell
-                    className={`${component.status === "In Stock" ? "text-green-400" : component.status === "Low Stock" ? "text-yellow-400" : "text-red-400"} flex items-center gap-2 font-medium`}
-                  >
-                    <Dot />
-                    <span>{component.status}</span>
-                  </TableCell>
-                  <TableCell>{component.current_qty}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="px-2 flex items-center gap-2">
-                        <MoreHorizontal />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  <TableCell>{component.qty}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -131,9 +135,9 @@ const Project = () => {
           <p>No components. click on edit to add components.</p>
         )}
       </div>
-      <div>
+      <div className="space-y-2">
         <div>
-          <h3>Steps</h3>
+          <h3 className="font-medium">Steps</h3>
           <DropdownMenu>
             <DropdownMenuTrigger className="px-2 flex items-center gap-2">
               <span>{project.status}</span>
