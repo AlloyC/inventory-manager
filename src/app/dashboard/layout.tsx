@@ -1,17 +1,23 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import UserContext from "../Provider/UserContext";
 import TopBar from "./TopBar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import InventoryContext from "../Provider/InventoryContext";
 import ProjectsProvider from "../Provider/ProjectsProvider";
+import NewComponent from "../modals/NewComponent";
+import LogOut from "../modals/LogOut";
+import AuthProvider from "../Provider/AuthProvider";
 
 const layout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
+  const [logout, setLogout] = useState(false);
   return (
     <SidebarProvider>
+      {logout && <LogOut setLogout={setLogout} />}
       <div className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] w-full min-h-dvh ">
         <div className="row-start-1  relative row-end-3">
-          <Sidebar />
+          <Sidebar setLogout={setLogout} />
         </div>
         <div className="w-full">
           <TopBar />
@@ -19,7 +25,9 @@ const layout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
         <main className="w-full max-w-7xl mx-auto h-full p-5 md:px-10">
           <UserContext>
             <ProjectsProvider>
-              <InventoryContext>{children}</InventoryContext>
+              <InventoryContext>
+                <AuthProvider>{children}</AuthProvider>
+              </InventoryContext>
             </ProjectsProvider>
           </UserContext>
         </main>

@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import StickyHeader from "./StickyHeader";
 import { UserCircle } from "lucide-react";
@@ -9,8 +11,10 @@ import {
   FieldDescription,
   FieldLabel,
 } from "@/components/ui/field";
+import { useAuth } from "@/app/Provider/AuthProvider";
 
 const ProfileSettingsSection = () => {
+  const { setDeleteAccount } = useAuth();
   return (
     <div id="account" className="">
       <StickyHeader title="Profile Settings" />
@@ -79,7 +83,11 @@ const ProfileSettingsSection = () => {
                 certain.
               </FieldDescription>
             </FieldContent>
-            <Button type="button" variant="destructive">
+            <Button
+              type="button"
+              onClick={() => setDeleteAccount(true)}
+              variant="destructive"
+            >
               Delete Account
             </Button>
           </Field>
@@ -93,7 +101,11 @@ const ProfileSettingsSection = () => {
                 certain.
               </FieldDescription>
             </FieldContent>
-            <Button type="button" variant="destructive">
+            <Button
+              type="button"
+              onClick={() => setDeleteAccount(true)}
+              variant="destructive"
+            >
               Delete Account
             </Button>
           </Field>

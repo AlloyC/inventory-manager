@@ -13,7 +13,7 @@ function page() {
           onClick: () => router.push("/dashboard/projects/new-project"),
         }}
         buttonPropTwo={{
-          onClick: () => router.push("/dashboard/inventory?new-component=true"),
+          onClick: () => router.push("/dashboard/inventory?add-component=new"),
         }}
         title="Dashboard"
         buttonOneText="New project"

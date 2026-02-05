@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { rename } from "../formComponent/ImagesLabel";
+import supabase from "@/app/SupabaseCredentials";
 
 const Project = () => {
   const { id } = useParams();
@@ -36,21 +37,71 @@ const Project = () => {
 
       if (!project) return;
       const images: string[] = [];
-      project[0].images?.forEach(async (img) => {
-        await rename(img.url, images)
-          .finally(() => {
-            setProject(() => {
-              project[0].images = images.map((url) => ({ url }));
-              return { ...project[0] };
+      if (project[0].images && project[0].images.length > 0) {
+        project[0].images?.forEach(async (img) => {
+          await rename(img.url, images)
+            .finally(() => {
+              setProject(() => {
+                project[0].images = images.map((url) => ({ url }));
+                return { ...project[0] };
+              });
+            })
+            .catch((error) => {
+              console.error("Error renaming image URL:", error);
             });
-          })
-          .catch((error) => {
-            console.error("Error renaming image URL:", error);
-          });
-      });
-      console.log(id, project);
+        });
+        console.log(id, project);
+      } else {
+        setProject(project[0]);
+      }
     })();
   }, [id]);
+
+  const updateProjectStep = async (step: {
+    completed: boolean;
+    step: string;
+  }) => {
+    try {
+      if (!project || !project.id) return;
+      const { data, error } = await supabase
+        .from("steps")
+        .update({
+          completed: step.completed,
+          project_id: project.id,
+        })
+        .eq("project_id", project.id)
+        .eq("step", step.step);
+      if (error) {
+        throw error;
+      }
+      console.log("Updated project step:", data);
+    } catch (error) {
+      console.error("Error updating project step:", error);
+    }
+  };
+  // useEffect(() => {
+  //   console.log("Project steps changed:", project?.steps);
+  // }, [project?.steps]);
+
+  useEffect(() => {
+    console.log("Project status changed:", project?.status);
+    const updateProject = async () => {
+      if (!project || !project.id) return;
+      const { data, error } = await supabase
+        .from("projects")
+        .update({
+          status: project.status,
+        })
+        .eq("id", project.id);
+      if (error) {
+        throw error;
+      }
+      console.log("Updated project status:", data);
+    };
+    updateProject().catch((error) => {
+      console.error("Error updating project status:", error);
+    });
+  }, [project?.status]);
 
   if (id === "new-project") {
     router.push("/dashboard/projects/NewProject");
@@ -63,11 +114,18 @@ const Project = () => {
   if (!project) return null;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 max-w-4xl md:shadow-lg bg-slate-50 md:rounded-lg md:border md:p-5 mx-auto w-full grid grid-cols-1 overflow-x-hidden">
       <header className="flex justify-between items-center">
         <h2 className="font-medium text-lg">{project.name}</h2>
         <div className="flex gap-2 items-center">
-          <Button type="button">Edit</Button>
+          <Button
+            type="button"
+            onClick={() =>
+              router.push(`/dashboard/projects/edit-project?id=${id}`)
+            }
+          >
+            Edit
+          </Button>
           <Button
             type="button"
             variant={"ghost"}
@@ -79,11 +137,11 @@ const Project = () => {
       </header>
       <div className="space-y-2">
         <h3 className="font-medium">Description</h3>
-        <p className="indent-4">{project.description}</p>
+        <p className=" pl-4">{project.description}</p>
       </div>
       <div className="space-y-2">
         <h3 className="font-medium">Images</h3>
-        <div className="flex items-center gap-5 px-4">
+        <div className="flex items-center gap-5 px-4 overflow-x-auto">
           {project.images?.map((img) => (
             <Image
               key={img.url}
@@ -99,7 +157,7 @@ const Project = () => {
       <div className="space-y-2">
         <h3 className="font-medium">Components</h3>
         {project.project_components ? (
-          <Table>
+          <Table className="max-w-2xl ml-4">
             <TableHeader>
               <TableRow>
                 <TableHead>Image</TableHead>
@@ -136,27 +194,92 @@ const Project = () => {
         )}
       </div>
       <div className="space-y-2">
-        <div>
+        <div className="flex justify-between">
           <h3 className="font-medium">Steps</h3>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="px-2 flex items-center gap-2">
-              <span>{project.status}</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Status</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Planning</DropdownMenuItem>
-              <DropdownMenuItem>In progress</DropdownMenuItem>
-              <DropdownMenuItem>Completed</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-1">
+            <h3 className="font-medium">Status:</h3>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className={`"px-2 flex items-center hover:shadow-xl gap-2 font-medium shadow-sm rounded px-2 py-1 ${
+                  project.status === "planning"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : project.status === "running"
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-green-100 text-green-800"
+                }`}
+              >
+                <span className="capitalize">{project.status}</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Status</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() =>
+                    setProject((prev) =>
+                      prev ? { ...prev, status: "planning" } : null,
+                    )
+                  }
+                  textValue="planning"
+                >
+                  Planning
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    setProject((prev) =>
+                      prev ? { ...prev, status: "running" } : null,
+                    )
+                  }
+                  textValue="running"
+                >
+                  Running
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    setProject((prev) =>
+                      prev ? { ...prev, status: "completed" } : null,
+                    )
+                  }
+                  textValue="completed"
+                >
+                  Completed
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-        <div>
+        <div className="px-4">
           {project.steps ? (
-            project.steps.map((step) => (
-              <div key={step.step}>
-                <Input type="checkbox" />
-                <p>{step.step}</p>
+            project.steps.map((step, id) => (
+              <div key={step.step} className="flex items-start gap-2 mb-2">
+                <Input
+                  type="checkbox"
+                  id={`checkbox-${id}`}
+                  checked={project.steps ? project.steps[id]?.completed : false}
+                  onChange={() =>
+                    setProject((prev) => {
+                      if (!prev) return null;
+                      const updatedSteps = prev.steps?.map((s, index) => {
+                        if (index === id) {
+                          const updatedS = {
+                            ...s,
+                            completed: s.completed === false ? true : false,
+                          };
+                          updateProjectStep(updatedS);
+                          return updatedS;
+                        }
+                        return s;
+                      });
+                      return { ...prev, steps: updatedSteps };
+                    })
+                  }
+                  className="w-5 h-5 cursor-pointer"
+                />
+                <label
+                  htmlFor={`checkbox-${id}`}
+                  className={`-mt-0.5 cursor-pointer ${step.completed ? "line-through text-gray-500" : ""}`}
+                >
+                  {step.step}
+                </label>
               </div>
             ))
           ) : (

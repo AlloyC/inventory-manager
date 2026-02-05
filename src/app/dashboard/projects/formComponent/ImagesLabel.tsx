@@ -63,17 +63,25 @@ const ImagesLabel = ({
   };
 
   useEffect(() => {
-    (() => {
-      const renamedUrls: string[] = [];
-      projectData?.images &&
-        editedUrls.length === 0 &&
-        projectData.images.forEach(async (img) => {
-          await rename(img.url, renamedUrls)
-            .finally(() => {
-              setEditedUrls(renamedUrls);
-            })
-            .catch((err) => console.error(err));
-        });
+    (async () => {
+      if (
+        projectData?.images &&
+        projectData.images.length > 0 &&
+        editedUrls.length === 0
+      ) {
+        const renamedUrls = async () => {
+          const renamedUrlArray: string[] = [];
+          for (const img of projectData.images!) {
+            await rename(img.url, renamedUrlArray).catch((err) =>
+              console.error(err),
+            );
+          }
+          return renamedUrlArray;
+        };
+        const urls = await renamedUrls();
+        console.log("Renamed URLs:", urls);
+        setEditedUrls(urls);
+      }
     })();
     return () => {
       // Revoke object URLs to avoid memory leaks

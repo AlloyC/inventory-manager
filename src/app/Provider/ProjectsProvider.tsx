@@ -7,6 +7,7 @@ import { getSession } from "./UserContext";
 const Projects = createContext<{
   pinned: Partial<Project>[];
   projects: Project[];
+  getPinned: () => Promise<void>;
 } | null>(null);
 
 const Page = createContext<{
@@ -37,21 +38,28 @@ const getProjects = async (
   const userSession = await getSession();
   if (!userSession) return [];
   try {
-    const { data: projects, error } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("user_id", userSession.user.id)
-      .eq("pinned", pinned || false)
-      .order("last_modified", { ascending: true })
-      .range((page - 1) * pageSize, page * pageSize - 1);
+    const { data: projects, error } = pinned
+      ? await supabase
+          .from("projects")
+          .select("*")
+          .eq("user_id", userSession.user.id)
+          .eq("pinned", pinned)
+          .order("last_modified", { ascending: false })
+          .range((page - 1) * pageSize, page * pageSize - 1)
+      : await supabase
+          .from("projects")
+          .select("*")
+          .eq("user_id", userSession.user.id)
+          .order("last_modified", { ascending: false })
+          .range((page - 1) * pageSize, page * pageSize - 1);
     if (error) {
       throw error;
     }
     console.log("Fetched projects:", projects);
-    return projects || [];
+    return (projects || []) as Project[];
   } catch (error) {
     console.error("Error fetching projects:", error);
-    return [];
+    return [] as Project[];
   }
 };
 
@@ -75,7 +83,8 @@ export const getProject = async (id: number) => {
       )
     ),
     steps (
-      step
+      step,
+      completed
     ),
     images (
       url
@@ -282,28 +291,42 @@ const ProjectsProvider = ({ children }: { children: React.ReactNode }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [page, setPage] = useState<number>(1);
 
+  const getPinned = async () => {
+    const projects = await getProjects(1, 3, true);
+    setPinned(
+      projects.map((project) => ({
+        id: project.id,
+        name: project.name,
+        status: project.status,
+      })),
+    );
+
+    // .then((projects) =>
+    //   setPinned(
+    //     projects.map((project) => ({
+    //       id: project.id,
+    //       name: project.name,
+    //       status: project.status,
+    //     })),
+    //   ),
+    // )
+    // .catch((error) => {
+    //   console.error("Error fetching pinned projects:", error);
+    // });
+  };
+
   useEffect(() => {
     getProjects(page, 10).then((projects) => setProjects(projects));
-  }, [page]);
+  }, [page, pinned]);
 
   useEffect(() => {
-    getProjects(1, 3, true)
-      .then((projects) =>
-        setPinned(
-          projects.map((project) => ({
-            id: project.id,
-            name: project.name,
-            status: project.status,
-          })),
-        ),
-      )
-      .catch((error) => {
-        console.error("Error fetching pinned projects:", error);
-      });
+    getPinned();
   }, []);
 
+  // Try to get it to reload after pinning a project
+
   return (
-    <Projects.Provider value={{ pinned, projects }}>
+    <Projects.Provider value={{ pinned, projects, getPinned }}>
       <Page.Provider value={{ setPage, page }}>{children}</Page.Provider>
     </Projects.Provider>
   );

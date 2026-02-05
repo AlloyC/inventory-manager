@@ -20,27 +20,74 @@ import {
 } from "@/components/ui/table";
 import Image from "next/image";
 import { Dot, Filter, MoreHorizontal } from "lucide-react";
-import { useInventory, usePage } from "@/app/Provider/InventoryContext";
-import { useRouter } from "next/navigation";
+import {
+  statusType,
+  useInventory,
+  usePage,
+} from "@/app/Provider/InventoryContext";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { InventoryComponent } from "@/app/types/type";
+import NewComponent from "@/app/modals/NewComponent";
+import { Button } from "@/components/ui/button";
 
 const page = () => {
-  const { setPage, page } = usePage();
+  const { setPage, page, setFilter } = usePage();
+  const { totalProjectPages } = useInventory();
   const router = useRouter();
+  const searchParam = useSearchParams();
+  const getComponentParam = searchParam.get("add-component");
+  const getStatusParam = searchParam.get("status");
+
   const { inventory } = useInventory();
+  const [component, setComponent] = useState<InventoryComponent>({
+    name: "",
+    location: "",
+    status: "In Stock",
+    current_qty: 1,
+    image: "",
+  });
+
+  const handleEdit = (component: InventoryComponent) => {
+    setComponent(component);
+    router.push("?add-component=edit");
+  };
+
+  useEffect(() => {
+    setFilter(
+      (getStatusParam?.toString().replaceAll("-", " ") as statusType) || null,
+    );
+  }, [getStatusParam?.toString()]);
+
   if (!inventory) {
     return null;
   }
 
   return (
     <div className="w-full h-full">
+      {getComponentParam === "new" ? (
+        <NewComponent
+          title="New component"
+          data={component}
+          action={setComponent}
+        />
+      ) : (
+        getComponentParam === "edit" && (
+          <NewComponent
+            title="Edit component"
+            data={component}
+            action={setComponent}
+          />
+        )
+      )}
       <PageHeader
         title="Inventory"
         buttonOneText="New"
         buttonTwoText="CSV"
         buttonPropTwo={{ variant: "outline" }}
         buttonPropOne={{
-          onClick: () => router.push("/dashboard/inventory?new-component=true"),
+          onClick: () => router.push("?add-component=new"),
           style: { display: "flex", alignItems: "center", gap: "5px" },
         }}
         solidOne={true}
@@ -62,7 +109,7 @@ const page = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <Link
-                  href="/dashboard/inventory?status=low-stock"
+                  href="/dashboard/inventory?status=Low-Stock"
                   className="w-full"
                 >
                   Low stock
@@ -70,7 +117,7 @@ const page = () => {
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Link
-                  href="/dashboard/inventory?status=in-stock"
+                  href="/dashboard/inventory?status=In-Stock"
                   className="w-full"
                 >
                   In stock
@@ -78,7 +125,7 @@ const page = () => {
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Link
-                  href="/dashboard/inventory?status=out-of-stock"
+                  href="/dashboard/inventory?status=Out-of-Stock"
                   className="w-full"
                 >
                   Out of stock
@@ -118,7 +165,7 @@ const page = () => {
                 <TableCell>{component.name}</TableCell>
                 <TableCell>{component.location}</TableCell>
                 <TableCell
-                  className={`${component.status === "In Stock" ? "text-green-400" : component.status === "Low Stock" ? "text-yellow-400" : "text-red-400"} flex items-center gap-2 font-medium`}
+                  className={`${component.status.toLowerCase() === "in stock" ? "text-green-400" : component.status.toLowerCase() === "low stock" ? "text-yellow-400" : "text-red-400"} flex items-center gap-2 font-medium`}
                 >
                   <Dot />
                   <span>{component.status}</span>
@@ -130,7 +177,9 @@ const page = () => {
                       <MoreHorizontal />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEdit(component)}>
+                        Edit
+                      </DropdownMenuItem>
                       <DropdownMenuItem>Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -139,6 +188,24 @@ const page = () => {
             ))}
           </TableBody>
         </Table>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((prev) => prev--)}
+            disabled={page === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((prev) => prev++)}
+            disabled={page === totalProjectPages}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );

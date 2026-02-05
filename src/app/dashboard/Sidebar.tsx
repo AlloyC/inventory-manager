@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import Logo from "../../../public/assets/svgs/Logo";
 import Navigations from "./component/Navigations";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 const navbarLinks: NavbarLink[] = [
   { name: "dashboard", path: "/dashboard", Logo: LayoutDashboardIcon },
@@ -31,7 +31,11 @@ const navbarLinks: NavbarLink[] = [
   { name: "settings", path: "/dashboard/settings", Logo: Settings },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({
+  setLogout,
+}: {
+  setLogout: Dispatch<SetStateAction<boolean>>;
+}) => {
   const [currentPath, setCurrentPath] = useState("");
   return (
     <AppSidebar className="w-64">
@@ -55,6 +59,7 @@ const Sidebar = () => {
       </SidebarContent>
       <SidebarFooter>
         <button
+          onClick={() => setLogout(true)}
           className={`px-5 w-full py-2 text-sm rounded font-medium hover:bg-gray-600/10  flex gap-2 items-center`}
         >
           <LogOut className="w-4 h-4" />

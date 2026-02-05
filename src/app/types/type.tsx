@@ -26,7 +26,7 @@ export interface Card {
 }
 
 export interface InventoryComponent {
-  id: string;
+  id?: string;
   name: string;
   location: string;
   status: "In Stock" | "Low Stock" | "Out of Stock";
@@ -47,7 +47,8 @@ export interface Project {
         location?: string;
       })[]
     | [];
-  steps: { step: string }[] | [];
+  steps: { step: string; completed: boolean }[] | [];
+  pinned: boolean;
 }
 
 export interface LabelsProps {

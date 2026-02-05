@@ -19,13 +19,54 @@ import {
 } from "@/components/ui/table";
 import { Dot, Filter, Grid, Grid2X2, List, MoreVertical } from "lucide-react";
 
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useProjects } from "@/app/Provider/ProjectsProvider";
+import { usePage, useProjects } from "@/app/Provider/ProjectsProvider";
 import Link from "next/link";
+import supabase from "@/app/SupabaseCredentials";
+import { useInventory } from "@/app/Provider/InventoryContext";
 
 const ProjectsTable = () => {
-  const { projects } = useProjects();
+  const { projects, pinned, getPinned } = useProjects();
+  const { page, setPage } = usePage();
+  const { totalInventoriesPages } = useInventory();
+
+  const updatePinned = async (id?: string) => {
+    try {
+      if (!id || pinned.length >= 3) return;
+      const { data, error } = await supabase
+        .from("projects")
+        .update({
+          pinned: true,
+        })
+        .eq("id", id);
+      if (error) {
+        throw error;
+      }
+      console.log("Updated project pinned status:", data);
+    } catch (error) {
+      console.error("Error updating project pinned status:", error);
+    }
+    await getPinned();
+  };
+  const unpinProject = async (id?: string) => {
+    try {
+      if (!id) return;
+      const { data, error } = await supabase
+        .from("projects")
+        .update({
+          pinned: false,
+        })
+        .eq("id", id);
+      if (error) {
+        throw error;
+      }
+      console.log("Updated project pinned status:", data);
+    } catch (error) {
+      console.error("Error updating project pinned status:", error);
+    }
+    await getPinned();
+  };
+
   return (
     <div>
       <div className="flex flex-col md:flex-row items-start md:items-center w-full justify-between">
@@ -108,9 +149,28 @@ const ProjectsTable = () => {
                           Edit
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>Pin</DropdownMenuItem>
-                      <DropdownMenuItem>Rename</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                      {!project.pinned ? (
+                        <DropdownMenuItem
+                          disabled={pinned.length >= 3}
+                          onClick={() => updatePinned(project.id)}
+                          className="cursor-pointer"
+                        >
+                          Pin
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={() => unpinProject(project.id)}
+                          className="cursor-pointer"
+                        >
+                          Unpin
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem className="cursor-pointer">
+                        Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -122,16 +182,16 @@ const ProjectsTable = () => {
           <Button
             variant="outline"
             size="sm"
-            //   onClick={() => table.previousPage()}
-            //   disabled={!table.getCanPreviousPage()}
+            onClick={() => setPage((prev) => prev--)}
+            disabled={page === 1}
           >
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            //   onClick={() => table.nextPage()}
-            //   disabled={!table.getCanNextPage()}
+            onClick={() => setPage((prev) => prev++)}
+            disabled={page === totalInventoriesPages}
           >
             Next
           </Button>

@@ -31,6 +31,7 @@ const EditProjects = () => {
         steps: [],
         images: [],
         id: id,
+        pinned: false,
       };
       (async () => {
         const project = await getProject(Number(id));
