@@ -41,23 +41,11 @@ const ComponentsLabel = ({
                           {
                             ...inventory[0],
                             qty: 1,
-                            component_id: inventory[0].id,
+                            component_id: inventory[0].id || "",
                           },
                         ],
                       }
-                    : {
-                        name: "",
-                        description: "",
-                        status: "planning",
-                        project_components: [
-                          {
-                            ...inventory[0],
-                            qty: 1,
-                            component_id: inventory[0].id,
-                          },
-                        ],
-                        steps: [],
-                      },
+                    : null,
                 )
               }
             >
@@ -80,7 +68,7 @@ const ComponentsLabel = ({
                       updatedComponents[id] = {
                         ...selectedComponent,
                         qty: 1,
-                        component_id: selectedComponent.id,
+                        component_id: selectedComponent.id!,
                       };
                     }
                     return {
@@ -142,19 +130,7 @@ const ComponentsLabel = ({
                           ...prev.project_components.slice(id + 1),
                         ],
                       }
-                    : {
-                        name: "",
-                        description: "",
-                        status: "planning",
-                        project_components: [
-                          {
-                            ...inventory[0],
-                            qty: 1,
-                            component_id: inventory[0].id,
-                          },
-                        ],
-                        steps: [],
-                      },
+                    : null,
                 )
               }
             >
@@ -177,23 +153,11 @@ const ComponentsLabel = ({
                           {
                             ...inventory[0],
                             qty: 1,
-                            component_id: inventory[0].id,
+                            component_id: inventory[0].id || "",
                           },
                         ],
                       }
-                    : {
-                        name: "",
-                        description: "",
-                        status: "planning",
-                        project_components: [
-                          {
-                            ...inventory[0],
-                            qty: 1,
-                            component_id: inventory[0].id,
-                          },
-                        ],
-                        steps: [],
-                      },
+                    : null,
                 )
               }
             >

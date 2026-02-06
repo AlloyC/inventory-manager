@@ -24,11 +24,18 @@ import { usePage, useProjects } from "@/app/Provider/ProjectsProvider";
 import Link from "next/link";
 import supabase from "@/app/SupabaseCredentials";
 import { useInventory } from "@/app/Provider/InventoryContext";
+import DeleteProject from "@/app/modals/DeleteProject";
+import { useState } from "react";
 
 const ProjectsTable = () => {
-  const { projects, pinned, getPinned } = useProjects();
+  const { projects, pinned, getPinned, search, setSearch, setFilter } =
+    useProjects();
   const { page, setPage } = usePage();
   const { totalInventoriesPages } = useInventory();
+  const [deleteProject, setDeleteProject] = useState(false);
+  const [projectIdToDelete, setProjectIdToDelete] = useState<string | null>(
+    null,
+  );
 
   const updatePinned = async (id?: string) => {
     try {
@@ -66,15 +73,46 @@ const ProjectsTable = () => {
     }
     await getPinned();
   };
+  const renameProject = async (id?: string, newName?: string) => {
+    try {
+      if (!id) return;
+      const { data, error } = await supabase
+        .from("projects")
+        .update({
+          name: newName,
+        })
+        .eq("id", id);
+      if (error) {
+        throw error;
+      }
+      console.log("Updated project name:", data);
+    } catch (error) {
+      console.error("Error updating project name: ", error);
+    }
+    await getPinned();
+  };
+
+  const handledelete = (id: string) => {
+    setProjectIdToDelete(id);
+    setDeleteProject((prev) => !prev);
+  };
 
   return (
     <div>
+      {deleteProject && projectIdToDelete && (
+        <DeleteProject
+          projectId={projectIdToDelete}
+          setDeleteProject={() => handledelete("")}
+        />
+      )}
       <div className="flex flex-col md:flex-row items-start md:items-center w-full justify-between">
         <h3 className="text-nowrap pr-2">All Projects</h3>
         <div className="py-5 grid gap-2 grid-cols-[1fr_auto_auto] w-full max-w-96 items-center">
           <Input
             type="text"
             placeholder="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-[clamp(400px,max-content,256px)] focus-visible:ring-2"
           />
           <DropdownMenu>
@@ -87,9 +125,18 @@ const ProjectsTable = () => {
             <DropdownMenuContent>
               <DropdownMenuLabel>Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Planning</DropdownMenuItem>
-              <DropdownMenuItem>Running</DropdownMenuItem>
-              <DropdownMenuItem>Completed</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilter("planning")}>
+                Planning
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilter("running")}>
+                Running
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilter("completed")}>
+                Completed
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilter("")}>
+                All
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <button className="text-gray-500">
@@ -168,7 +215,10 @@ const ProjectsTable = () => {
                       <DropdownMenuItem className="cursor-pointer">
                         Rename
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer">
+                      <DropdownMenuItem
+                        onClick={() => handledelete(project.id!)}
+                        className="cursor-pointer"
+                      >
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -182,7 +232,7 @@ const ProjectsTable = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((prev) => prev--)}
+            onClick={() => setPage((prev) => prev - 1)}
             disabled={page === 1}
           >
             Previous
@@ -190,7 +240,7 @@ const ProjectsTable = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((prev) => prev++)}
+            onClick={() => setPage((prev) => prev + 1)}
             disabled={page === totalInventoriesPages}
           >
             Next

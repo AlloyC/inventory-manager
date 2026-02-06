@@ -8,6 +8,10 @@ const Projects = createContext<{
   pinned: Partial<Project>[];
   projects: Project[];
   getPinned: () => Promise<void>;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  search: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
 } | null>(null);
 
 const Page = createContext<{
@@ -34,24 +38,67 @@ const getProjects = async (
   page: number,
   pageSize: number,
   pinned?: boolean,
+  filter?: string[],
 ) => {
   const userSession = await getSession();
   if (!userSession) return [];
   try {
-    const { data: projects, error } = pinned
-      ? await supabase
-          .from("projects")
-          .select("*")
-          .eq("user_id", userSession.user.id)
-          .eq("pinned", pinned)
-          .order("last_modified", { ascending: false })
-          .range((page - 1) * pageSize, page * pageSize - 1)
-      : await supabase
-          .from("projects")
-          .select("*")
-          .eq("user_id", userSession.user.id)
-          .order("last_modified", { ascending: false })
-          .range((page - 1) * pageSize, page * pageSize - 1);
+    if (filter) {
+      const { data: projects, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("user_id", userSession.user.id)
+        .in("status", filter || ["completed", "running", "planning"])
+        .order("last_modified", { ascending: false })
+        .range((page - 1) * pageSize, page * pageSize - 1);
+
+      if (error) {
+        throw error;
+      }
+      console.log("Fetched projects:", projects);
+      return (projects || []) as Project[];
+    } else {
+      const { data: projects, error } = pinned
+        ? await supabase
+            .from("projects")
+            .select("*")
+            .eq("user_id", userSession.user.id)
+            .eq("pinned", pinned)
+            .order("last_modified", { ascending: false })
+            .range((page - 1) * pageSize, page * pageSize - 1)
+        : await supabase
+            .from("projects")
+            .select("*")
+            .eq("user_id", userSession.user.id)
+            .order("last_modified", { ascending: false })
+            .range((page - 1) * pageSize, page * pageSize - 1);
+
+      if (error) {
+        throw error;
+      }
+      console.log("Fetched projects:", projects);
+      return (projects || []) as Project[];
+    }
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    return [] as Project[];
+  }
+};
+const searchProjects = async (
+  page: number,
+  pageSize: number,
+  searchQuery: string,
+) => {
+  const userSession = await getSession();
+  if (!userSession) return [];
+  try {
+    const { data: projects, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("user_id", userSession.user.id)
+      .order("last_modified", { ascending: false })
+      .ilike("name", `%${searchQuery}%`)
+      .range((page - 1) * pageSize, page * pageSize - 1);
     if (error) {
       throw error;
     }
@@ -290,6 +337,9 @@ const ProjectsProvider = ({ children }: { children: React.ReactNode }) => {
   const [pinned, setPinned] = useState<Partial<Project>[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [page, setPage] = useState<number>(1);
+  const [refresh, setRefresh] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("");
 
   const getPinned = async () => {
     const projects = await getProjects(1, 3, true);
@@ -316,17 +366,50 @@ const ProjectsProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    getProjects(page, 10).then((projects) => setProjects(projects));
-  }, [page, pinned]);
+    getProjects(page, 10, undefined, filter !== "" ? [filter] : undefined).then(
+      (projects) => setProjects(projects),
+    );
+    const timeout = setTimeout(() => setRefresh(false), 500);
+    return () => clearTimeout(timeout);
+  }, [page, pinned, refresh, filter]);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (search !== "") {
+      timeout = setTimeout(
+        () =>
+          searchProjects(page, 10, search).then((projects) =>
+            setProjects(projects),
+          ),
+        500,
+      );
+    } else {
+      setRefresh(true);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [page, search]);
 
   useEffect(() => {
     getPinned();
-  }, []);
+    const timeout = setTimeout(() => setRefresh(false), 500);
+    return () => clearTimeout(timeout);
+  }, [refresh]);
 
   // Try to get it to reload after pinning a project
 
   return (
-    <Projects.Provider value={{ pinned, projects, getPinned }}>
+    <Projects.Provider
+      value={{
+        pinned,
+        projects,
+        getPinned,
+        setRefresh,
+        search,
+        setSearch,
+        setFilter,
+      }}
+    >
       <Page.Provider value={{ setPage, page }}>{children}</Page.Provider>
     </Projects.Provider>
   );

@@ -28,6 +28,7 @@ const NewProjects = () => {
       project_components: [],
       steps: [],
       images: [],
+      pinned: false,
     };
     setProjectData(defualtData);
   }, []);

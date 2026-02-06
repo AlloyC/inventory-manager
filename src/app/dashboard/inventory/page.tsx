@@ -19,8 +19,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Image from "next/image";
-import { Dot, Filter, MoreHorizontal } from "lucide-react";
+import { Dot, Filter, MoreHorizontal, Search } from "lucide-react";
 import {
+  searchInventory,
   statusType,
   useInventory,
   usePage,
@@ -31,14 +32,19 @@ import { useEffect, useState } from "react";
 import { InventoryComponent } from "@/app/types/type";
 import NewComponent from "@/app/modals/NewComponent";
 import { Button } from "@/components/ui/button";
+import DeleteInventory from "@/app/modals/DeleteInventory";
 
 const page = () => {
   const { setPage, page, setFilter } = usePage();
-  const { totalProjectPages } = useInventory();
+  const { totalInventoriesPages, setSearch, search } = useInventory();
   const router = useRouter();
   const searchParam = useSearchParams();
   const getComponentParam = searchParam.get("add-component");
   const getStatusParam = searchParam.get("status");
+  const [deleteInventory, setDeleteInventory] = useState(false);
+  const [inventoryIdToDelete, setInventoryIdToDelete] = useState<string | null>(
+    null,
+  );
 
   const { inventory } = useInventory();
   const [component, setComponent] = useState<InventoryComponent>({
@@ -54,6 +60,11 @@ const page = () => {
     router.push("?add-component=edit");
   };
 
+  const handledelete = (id: string) => {
+    setInventoryIdToDelete(id);
+    setDeleteInventory((prev) => !prev);
+  };
+
   useEffect(() => {
     setFilter(
       (getStatusParam?.toString().replaceAll("-", " ") as statusType) || null,
@@ -66,6 +77,12 @@ const page = () => {
 
   return (
     <div className="w-full h-full">
+      {deleteInventory && inventoryIdToDelete && (
+        <DeleteInventory
+          componentId={inventoryIdToDelete}
+          setDeleteInventory={() => handledelete("")}
+        />
+      )}
       {getComponentParam === "new" ? (
         <NewComponent
           title="New component"
@@ -98,6 +115,8 @@ const page = () => {
             type="text"
             placeholder="search"
             className="max-w-80 focus-visible:ring-2"
+            onChange={(e) => setSearch(e.target.value)}
+            value={search}
           />
           <DropdownMenu>
             <DropdownMenuTrigger className="px-2 flex items-center gap-2">
@@ -180,7 +199,11 @@ const page = () => {
                       <DropdownMenuItem onClick={() => handleEdit(component)}>
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handledelete(component.id!)}
+                      >
+                        Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -192,7 +215,7 @@ const page = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((prev) => prev--)}
+            onClick={() => setPage((prev) => prev - 1)}
             disabled={page === 1}
           >
             Previous
@@ -200,8 +223,8 @@ const page = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((prev) => prev++)}
-            disabled={page === totalProjectPages}
+            onClick={() => setPage((prev) => prev + 1)}
+            disabled={page === totalInventoriesPages}
           >
             Next
           </Button>

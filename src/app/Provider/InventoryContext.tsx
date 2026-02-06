@@ -10,6 +10,9 @@ const Inventory = createContext<{
   lowStock: InventoryComponent[];
   totalProjectPages: number;
   totalInventoriesPages: number;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  search: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
 } | null>(null);
 const Page = createContext<{
   setPage: React.Dispatch<React.SetStateAction<number>>;
@@ -43,6 +46,7 @@ export const getTableLengths = async () => {
         supabase
           .from("components")
           .select("*", { count: "exact", head: true })
+          .is("deleted_at", null)
           .eq("user_id", userSession.user.id),
         supabase
           .from("projects")
@@ -98,8 +102,42 @@ export const fetchPaginatedInventory: (
       .select("*")
       .eq("user_id", userSession.user.id)
       .in("status", status || ["Low Stock", "In Stock", "Out of Stock"])
-      .order("created_at", { ascending: true });
-    // .range((page - 1) * pageSize, page * pageSize - 1);
+      .order("created_at", { ascending: true })
+      .is("deleted_at", null)
+      .range((page - 1) * pageSize, page * pageSize - 1);
+    if (error) {
+      throw error;
+    }
+    return components || [];
+  } catch (error) {
+    console.log("Error fetching paginated inventory:", error);
+    return [];
+  }
+};
+
+export const searchInventory: (
+  page: number,
+  pageSize: number,
+  searchTerm: string,
+  status?: statusType[],
+) => Promise<InventoryComponent[]> = async (
+  page: number,
+  pageSize: number,
+  searchTerm: string,
+  status?: statusType[],
+) => {
+  const userSession = await getSession();
+  if (!userSession) return [];
+  try {
+    const { data: components, error } = await supabase
+      .from("components")
+      .select("*")
+      .eq("user_id", userSession.user.id)
+      .in("status", status || ["Low Stock", "In Stock", "Out of Stock"])
+      .order("created_at", { ascending: true })
+      .is("deleted_at", null)
+      .ilike("name", `%${searchTerm}%`)
+      .range((page - 1) * pageSize, page * pageSize - 1);
     if (error) {
       throw error;
     }
@@ -118,28 +156,47 @@ const InventoryContext = ({ children }: { children: React.ReactNode }) => {
   const [filter, setFilter] = useState<statusType | null>(null);
   const [totalProjectPages, setTotalProjectPages] = useState(1);
   const [totalInventoriesPages, setTotalInventoriesPages] = useState(1);
+  const [refresh, setRefresh] = useState(false);
+  const [search, setSearch] = useState<string>("");
 
   useEffect(() => {
     getTableLengths()
-      .then((tableLengths) => setSummaries(tableLengths))
-      .finally(() => {
-        setTotalProjectPages(Math.ceil(summaries[3].value / 10));
-        setTotalInventoriesPages(Math.ceil(summaries[0].value / 10));
+      .then((tableLengths) => {
+        setSummaries(tableLengths);
+        return tableLengths;
+      })
+      .then((tableLengths) => {
+        setTotalProjectPages(Math.ceil(tableLengths[3].value / 10));
+        setTotalInventoriesPages(Math.ceil(tableLengths[0].value / 10));
       });
     fetchPaginatedInventory(1, 10, ["Low Stock"]).then((inventoryData) =>
       setLowStock(inventoryData),
     );
-  }, []);
+  }, [refresh]);
 
   useEffect(() => {
-    filter
-      ? fetchPaginatedInventory(page, 10, [filter]).then((inventoryData) =>
-          setInventory(inventoryData),
-        )
-      : fetchPaginatedInventory(page, 10).then((inventoryData) =>
-          setInventory(inventoryData),
+    let serachTimeout: NodeJS.Timeout;
+    if (search !== "") {
+      serachTimeout = setTimeout(() => {
+        searchInventory(page, 10, search, filter ? [filter] : undefined).then(
+          (inventoryData) => setInventory(inventoryData),
         );
-  }, [page, filter]);
+      }, 500);
+    } else {
+      filter
+        ? fetchPaginatedInventory(page, 10, [filter]).then((inventoryData) =>
+            setInventory(inventoryData),
+          )
+        : fetchPaginatedInventory(page, 10).then((inventoryData) =>
+            setInventory(inventoryData),
+          );
+    }
+    const timeout = setTimeout(() => setRefresh(false), 500);
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(serachTimeout);
+    };
+  }, [page, filter, refresh, search]);
 
   return (
     <Inventory.Provider
@@ -149,6 +206,9 @@ const InventoryContext = ({ children }: { children: React.ReactNode }) => {
         totalInventoriesPages,
         inventory,
         lowStock,
+        setRefresh,
+        search,
+        setSearch,
       }}
     >
       <Page.Provider value={{ setPage, page, setFilter }}>
