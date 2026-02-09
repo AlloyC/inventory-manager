@@ -24,8 +24,32 @@ const LoginForm = () => {
       if (error) {
         throw error;
       }
-      console.log("Login successful:", data);
-      router.push("/dashboard");
+
+      const {
+        data: userExist,
+        error: userExistError,
+        count,
+      } = await supabase
+        .from("users")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+
+      if (userExistError) {
+        throw userExistError;
+      }
+
+      if (count && count > 0) {
+        console.log("Login successful:", data);
+        router.push("/dashboard");
+      } else {
+        await supabase.auth.signOut();
+        console.log(
+          "User does not exist in users table.",
+          data.user.id,
+          userExist,
+        );
+      }
     } catch (error) {
       console.log("Error logging in:", error);
     }

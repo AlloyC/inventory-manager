@@ -38,16 +38,20 @@ const UserContext = ({ children }: { children: React.ReactNode }) => {
       const {
         data: { user },
         error,
-      } = await supabase.auth.getUser();
+      } = await supabase
+        .from("users")
+        .select("*")
+        .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+        .single();
       if (error) {
         throw error;
       }
       user &&
         setUserData({
-          username: user.user_metadata.full_name || "",
+          username: user.username || "",
           email: user.email || "",
-          id: user.id || "",
-          email_verified: user.user_metadata.email_verified || false,
+          id: user.user_id || "",
+          avatar_url: user.avatar_url || "",
         });
       return user;
     } catch (error) {

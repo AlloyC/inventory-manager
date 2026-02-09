@@ -12,24 +12,155 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { useAuth } from "@/app/Provider/AuthProvider";
+import { useEffect, useRef, useState } from "react";
+import { getSession, useUser } from "@/app/Provider/UserContext";
+import supabase from "@/app/SupabaseCredentials";
 
 const ProfileSettingsSection = () => {
   const { setDeleteAccount } = useAuth();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<{ file: File; url: string } | null>(
+    null,
+  );
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const {} = useUser();
+
+  const handleClick = async () => {
+    inputRef.current?.click();
+  };
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setTimeout(
+      () => uplaodImage(file).catch((error) => console.log(error)),
+      2000,
+    );
+    setPreview({ file, url: URL.createObjectURL(file) });
+  };
+
+  const uplaodImage = async (file: File) => {
+    const session = await getSession();
+    if (!session) return;
+    const update = await supabase.storage
+      .from("user_profile")
+      .upload(`${session.user.id}/${file.name}`, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+    // Not done with edit
+    update.data && console.log("File uploaded successfully:", update.data);
+    update.error && console.log("Error uploading file:", update.error);
+    if (update.error) throw update.error;
+
+    const { data, error } = await supabase
+      .from("users")
+      .update({
+        avatar_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/user_profile/${session.user.id}/${file.name}`,
+      })
+      .eq("user_id", session.user.id);
+    if (error) throw error;
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+  };
+
+  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  const handlePasswordChange = async () => {
+    try {
+      if (password.length < 6) {
+        console.log("Password must be at least 6 characters");
+        return;
+      }
+      const { error } = await supabase.auth.updateUser({
+        password: password,
+      });
+
+      if (error) {
+        throw error;
+      } else {
+        console.log("Password updated");
+      }
+    } catch (error) {
+      console.log("Error updating password:", error);
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    setPreview(null);
+    // remove from input is still undone...
+    const session = await getSession();
+    if (!session) return;
+
+    const { data, error } = await supabase
+      .from("users")
+      .update({
+        avatar_url: null,
+      })
+      .eq("user_id", session.user.id);
+    if (error) throw error;
+    console.log("image remove successfully");
+  };
+
+  useEffect(() => {
+    (async () => {
+      const session = await getSession();
+      if (!session) return;
+      const { data, error } = await supabase
+        .from("users")
+        .select("avatar_url")
+        .eq("user_id", session.user.id)
+        .single();
+      if (error) {
+        console.log(error);
+        return;
+      }
+      data?.avatar_url &&
+        setPreview(() => ({ file: {} as File, url: data.avatar_url }));
+      setEmail(session.user.email || "");
+      setUsername(session.user.user_metadata.username || "");
+    })();
+  }, []);
+
   return (
     <div id="account" className="">
       <StickyHeader title="Profile Settings" />
       <form action="" className="p-5">
-        <div className="flex  items-start gap-3 mb-5">
-          {false ? (
-            <Image src={""} alt="" />
+        <div className="flex  items-center gap-3 mb-5">
+          {preview ? (
+            <div className="w-16 h-16 rounded-full border">
+              <Image
+                src={preview.url}
+                alt="Profile Preview"
+                width={50}
+                height={50}
+                className="rounded-full object-center w-full h-full"
+              />
+            </div>
           ) : (
             <UserCircle className="w-20 h-20 text-slate-400" />
           )}
           <div className="grid grid-cols-2 gap-2 ">
-            <Button type="button">Change</Button>
+            <Input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleChange}
+            />
+            <Button type="button" onClick={handleClick}>
+              Change
+            </Button>
             <Button
               type="button"
               className="bg-transparent text-black border border-black hover:bg-transparent "
+              onClick={handleRemoveImage}
             >
               Remove
             </Button>
@@ -38,7 +169,12 @@ const ProfileSettingsSection = () => {
         </div>
         <label htmlFor="Username">Username</label>
         <div className="flex items-center gap-3 mb-5">
-          <Input id="Username" className="flex-1 max-w-96" />
+          <Input
+            id="Username"
+            onChange={handleUsernameChange}
+            value={username}
+            className="flex-1 max-w-96"
+          />
           <Button type="button">Save</Button>
         </div>
         <h3 className="border-b bg-white p-2 text-lg font-medium">
@@ -52,20 +188,25 @@ const ProfileSettingsSection = () => {
             type="email"
             id="email"
             disabled
-            value={"someone@gmail.com"}
+            value={email}
             className="-z-30 max-w-96 cursor-not-allowed"
           />
         </div>
         <div className="flex gap-2 flex-col max-w-96">
-          <label htmlFor="current-password" className="font-medium mt-3">
-            Current Password
-          </label>
-          <Input type="password" id="current-password" />
           <label htmlFor="new-password" className="font-medium mt-3">
             New Password
           </label>
-          <Input type="password" id="new-password" />
-          <Button type="button" className="w-fit mt-5">
+          <Input
+            type="password"
+            onChange={handlePassword}
+            value={password}
+            id="new-password"
+          />
+          <Button
+            type="button"
+            onClick={handlePasswordChange}
+            className="w-fit mt-5"
+          >
             Change Password
           </Button>
         </div>

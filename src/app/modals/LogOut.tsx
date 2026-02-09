@@ -2,17 +2,20 @@
 import { Button } from "@/components/ui/button";
 import { Dispatch, SetStateAction } from "react";
 import supabase from "../SupabaseCredentials";
+import { useRouter } from "next/navigation";
 
 const LogOut = ({
   setLogout,
 }: {
   setLogout: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const router = useRouter();
   //Signout function
   async function signOut() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      router.push("/auth/login");
     } catch (error) {
       console.log("error signing-out: ", error);
     }

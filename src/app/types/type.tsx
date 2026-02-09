@@ -14,6 +14,7 @@ export interface UserData {
   email: string;
   id: string;
   email_verified?: boolean;
+  avatar_url?: string;
 }
 
 export interface UserDataContext extends UserData {
