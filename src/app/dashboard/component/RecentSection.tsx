@@ -15,7 +15,7 @@ const RecentSection = () => {
         </h3>
         <Button
           onClick={() => router.push("/dashboard/projects/new-project")}
-          className="shadow bg-transparent text-black border border-gray-300 hover:bg-transparent hover:border-gray-400"
+          className="shadow bg-transparent text-black dark:text-white border border-gray-300 hover:bg-transparent hover:border-gray-400"
         >
           New
         </Button>

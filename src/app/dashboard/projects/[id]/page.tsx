@@ -30,6 +30,28 @@ const Project = () => {
   const { id } = useParams();
   const [project, setProject] = useState<Partial<ProjectDetails> | null>(null);
   const router = useRouter();
+  const updateProjectStep = async (step: {
+    completed: boolean;
+    step: string;
+  }) => {
+    try {
+      if (!project || !project.id) return;
+      const { data, error } = await supabase
+        .from("steps")
+        .update({
+          completed: step.completed,
+          project_id: project.id,
+        })
+        .eq("project_id", project.id)
+        .eq("step", step.step);
+      if (error) {
+        throw error;
+      }
+      console.log("Updated project step:", data);
+    } catch (error) {
+      console.error("Error updating project step:", error);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -57,28 +79,6 @@ const Project = () => {
     })();
   }, [id]);
 
-  const updateProjectStep = async (step: {
-    completed: boolean;
-    step: string;
-  }) => {
-    try {
-      if (!project || !project.id) return;
-      const { data, error } = await supabase
-        .from("steps")
-        .update({
-          completed: step.completed,
-          project_id: project.id,
-        })
-        .eq("project_id", project.id)
-        .eq("step", step.step);
-      if (error) {
-        throw error;
-      }
-      console.log("Updated project step:", data);
-    } catch (error) {
-      console.error("Error updating project step:", error);
-    }
-  };
   // useEffect(() => {
   //   console.log("Project steps changed:", project?.steps);
   // }, [project?.steps]);
@@ -104,7 +104,7 @@ const Project = () => {
   }, [project?.status]);
 
   if (id === "new-project") {
-    router.push("/dashboard/projects/NewProject");
+    router.push("/dashboard/projects/new-project");
     return null;
   } else if (id === "edit-project") {
     router.push(`/dashboard/projects/edit-project?id=${id}`);
@@ -114,7 +114,7 @@ const Project = () => {
   if (!project) return null;
 
   return (
-    <div className="space-y-3 max-w-4xl md:shadow-lg bg-slate-50 md:rounded-lg md:border md:p-5 mx-auto w-full grid grid-cols-1 overflow-x-hidden">
+    <div className="space-y-3 max-w-4xl md:shadow-lg dark:bg-accent/50 dark:text-white bg-slate-50 md:rounded-lg md:border md:p-5 mx-auto w-full grid grid-cols-1 overflow-x-hidden">
       <header className="flex justify-between items-center">
         <h2 className="font-medium text-lg">{project.name}</h2>
         <div className="flex gap-2 items-center">

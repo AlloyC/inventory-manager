@@ -122,7 +122,7 @@ const ImagesLabel = ({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className="absolute top-1 right-1 rounded-full bg-white p-1"
+                className="absolute top-1 right-1 rounded-full bg-white dark:bg-sidebar-accent p-1"
                 onClick={() => {
                   const index = [...editedUrls].findIndex(
                     (img) => img === image,

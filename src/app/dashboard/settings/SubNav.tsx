@@ -25,13 +25,13 @@ const SubNav = () => {
         currentPath={currentPath}
         setCurrentPath={setCurrentPath}
       />
-      <Navigations
+      {/* <Navigations
         Logo={Bell}
         name="notification"
         path="/dashboard/settings#notification"
         currentPath={currentPath}
         setCurrentPath={setCurrentPath}
-      />
+      /> */}
     </div>
   );
 };

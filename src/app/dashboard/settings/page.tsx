@@ -4,10 +4,10 @@ import ThemeSection from "../component/ThemeSection";
 
 const page = () => {
   return (
-    <div className="">
+    <div className="border">
       <ProfileSettingsSection />
       <ThemeSection />
-      <NotificationSection />
+      {/* <NotificationSection /> */}
     </div>
   );
 };

@@ -32,7 +32,7 @@ const NewComponent = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50 bg-black/5">
-      <div className="m-auto shadow-2xl border flex gap-2 flex-col items-start bg-white rounded-xl p-5 w-full max-w-lg">
+      <div className="m-auto shadow-2xl border flex gap-2 flex-col items-start bg-white dark:bg-accent rounded-xl p-5 w-full max-w-lg">
         <div className="flex justify-between w-full">
           <h2 className="font-medium text-lg">{title || "New Component"}</h2>
           <Button variant={"ghost"} onClick={handleCancel}>
@@ -121,7 +121,12 @@ const NewComponent = ({
               // value={data.current_qty}
             />
           </label>
-          <Button className="bg-blue-600 mt-4 mb-2">Create Component</Button>
+          <Button
+            className="bg-blue-600 mt-4 mb-2 dark:text-slate-50 dark:hover:bg-blue-700"
+            type="submit"
+          >
+            Create Component
+          </Button>
         </form>
       </div>
     </div>

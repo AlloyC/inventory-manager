@@ -241,7 +241,9 @@ const ProjectsTable = () => {
             variant="outline"
             size="sm"
             onClick={() => setPage((prev) => prev + 1)}
-            disabled={page === totalInventoriesPages}
+            disabled={
+              page === totalInventoriesPages || totalInventoriesPages === 0
+            }
           >
             Next
           </Button>

@@ -101,8 +101,8 @@ const page = () => {
       <PageHeader
         title="Inventory"
         buttonOneText="New"
-        buttonTwoText="CSV"
-        buttonPropTwo={{ variant: "outline" }}
+        // buttonTwoText="CSV"
+        // buttonPropTwo={{ variant: "outline" }}
         buttonPropOne={{
           onClick: () => router.push("?add-component=new"),
           style: { display: "flex", alignItems: "center", gap: "5px" },
@@ -224,7 +224,9 @@ const page = () => {
             variant="outline"
             size="sm"
             onClick={() => setPage((prev) => prev + 1)}
-            disabled={page === totalInventoriesPages}
+            disabled={
+              page === totalInventoriesPages || totalInventoriesPages === 0
+            }
           >
             Next
           </Button>

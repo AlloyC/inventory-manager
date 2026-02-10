@@ -38,7 +38,7 @@ const DeleteAccount = ({
         onClick={() => setDeleteAccount(false)}
         className="absolute inset-0 z-40"
       />
-      <div className="flex flex-col items-center z-50 bg-white rounded-2xl p-5 shadow-xl min-w-72 max-w-96 min-h-48 border justify-center">
+      <div className="flex flex-col items-center z-50 dark:bg-accent bg-white rounded-2xl p-5 shadow-xl min-w-72 max-w-96 min-h-48 border justify-center">
         <h2 className="text-xl font-semibold mb-3">Delete Account</h2>
         <p className="mb-4 text-center">
           Are you sure you want to delete your account? This action cannot be
@@ -48,7 +48,10 @@ const DeleteAccount = ({
           <Button variant={"outline"} onClick={() => setDeleteAccount(false)}>
             Cancel
           </Button>
-          <Button className="bg-red-500 text-white" onClick={handleDelete}>
+          <Button
+            className="bg-red-500 text-white dark:hover:bg-red-600"
+            onClick={handleDelete}
+          >
             Delete Account
           </Button>
         </div>

@@ -84,7 +84,7 @@ const EditProjects = () => {
           projectData={projectData}
           text={"Update Project"}
           images={images}
-          action={updateProject}
+          action={(data, images) => updateProject(data, images).then(() => router.push("/dashboard/projects"))}
         />
       </form>
     </div>

@@ -23,18 +23,21 @@ const LogOut = ({
 
   return (
     <div className="fixed inset-0 bg-black/10 z-50 flex items-center justify-center">
-      <div className="flex flex-col items-center bg-white rounded-2xl p-5 shadow-xl min-w-80 min-h-48 border justify-center">
+      <div className="flex flex-col items-center dark:bg-accent bg-white rounded-2xl p-5 shadow-xl min-w-80 min-h-48 border justify-center">
         <h2 className="text-xl font-semibold mb-3">Log Out</h2>
         <p className="mb-4">Are you sure you want to log out?</p>
         <div className="flex gap-3 mt-5">
           <Button
             variant="outline"
             onClick={() => setLogout(false)}
-            className="text-red-500 border-red-500 hover:border-black"
+            className=""
           >
             Cancel
           </Button>
-          <Button onClick={signOut} className="bg-red-500 text-white">
+          <Button
+            onClick={signOut}
+            className="bg-red-500 dark:hover:bg-red-600 text-white"
+          >
             Log Out
           </Button>
         </div>

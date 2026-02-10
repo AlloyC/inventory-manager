@@ -95,6 +95,9 @@ const ProfileSettingsSection = () => {
   const handleRemoveImage = async () => {
     setPreview(null);
     // remove from input is still undone...
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
     const session = await getSession();
     if (!session) return;
 
@@ -106,6 +109,35 @@ const ProfileSettingsSection = () => {
       .eq("user_id", session.user.id);
     if (error) throw error;
     console.log("image remove successfully");
+  };
+
+  const handleSaveName = async () => {
+    try {
+      const session = await getSession();
+      if (!session) return;
+      const { error } = await supabase
+        .from("users")
+        .update({
+          username: username,
+        })
+        .eq("user_id", session.user.id);
+      if (error) throw error;
+      console.log("Username updated successfully");
+    } catch (error) {
+      console.log("Error updating username:", error);
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          username: username,
+        },
+      });
+      if (error) throw error;
+      console.log("User metadata updated successfully");
+    } catch (error) {
+      console.log("Error updating user metadata:", error);
+    }
   };
 
   useEffect(() => {
@@ -159,7 +191,8 @@ const ProfileSettingsSection = () => {
             </Button>
             <Button
               type="button"
-              className="bg-transparent text-black border border-black hover:bg-transparent "
+              variant={"outline"}
+              className=""
               onClick={handleRemoveImage}
             >
               Remove
@@ -175,9 +208,11 @@ const ProfileSettingsSection = () => {
             value={username}
             className="flex-1 max-w-96"
           />
-          <Button type="button">Save</Button>
+          <Button type="button" onClick={handleSaveName}>
+            Save
+          </Button>
         </div>
-        <h3 className="border-b bg-white p-2 text-lg font-medium">
+        <h3 className="border-b dark:bg-transparent bg-white p-2 text-lg font-medium">
           Account Security
         </h3>
         <div className="flex flex-col gap-2 mt-3">

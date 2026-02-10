@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { NavbarLink } from "../types/type";
 import {
@@ -22,7 +23,8 @@ import {
 } from "lucide-react";
 import Logo from "../../../public/assets/svgs/Logo";
 import Navigations from "./component/Navigations";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const navbarLinks: NavbarLink[] = [
   { name: "dashboard", path: "/dashboard", Logo: LayoutDashboardIcon },
@@ -36,7 +38,19 @@ const Sidebar = ({
 }: {
   setLogout: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const path = usePathname();
   const [currentPath, setCurrentPath] = useState("");
+  const { setOpenMobile, isMobile } = useSidebar();
+  useEffect(() => {
+    setCurrentPath(() => {
+      if (path.split("/").length > 2) {
+        return `/${path.split("/")[1]}/${path.split("/")[2]}`;
+      } else {
+        return `/${path.split("/")[1]}`;
+      }
+    });
+    console.log(path.split("/")[0]);
+  }, [path]);
   return (
     <AppSidebar className="w-64">
       <SidebarHeader>
@@ -52,6 +66,7 @@ const Sidebar = ({
                 name={item.name}
                 path={item.path}
                 Logo={item.Logo}
+                onClick={() => isMobile && setOpenMobile(false)}
               />
             </SidebarMenuButton>
           </SidebarMenuItem>

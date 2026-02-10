@@ -19,6 +19,7 @@ const NewProjects = () => {
   const param = useSearchParams();
   const [projectData, setProjectData] = useState<Project | null>(null);
   const [images, setImages] = useState<{ file: File; url: string }[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const defualtData: Project = {
@@ -32,8 +33,6 @@ const NewProjects = () => {
     };
     setProjectData(defualtData);
   }, []);
-
-  const router = useRouter();
 
   const handleBack = () => {
     router.back();
@@ -77,7 +76,11 @@ const NewProjects = () => {
           text={"Create Project"}
           projectData={projectData}
           images={images}
-          action={createProject}
+          action={(data, images) =>
+            createProject(data, images).then(() =>
+              router.push("/dashboard/projects"),
+            )
+          }
         />
       </form>
     </div>

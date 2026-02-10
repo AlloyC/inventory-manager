@@ -9,16 +9,18 @@ const Navigations = ({
   Logo,
   currentPath,
   setCurrentPath,
-}: NavbarLink) => {
+  onClick,
+}: NavbarLink & { onClick?: () => void }) => {
   const handleClick = () => {
     // Immediately update the state when clicked
-    setCurrentPath(path);
+    setCurrentPath && setCurrentPath(path);
+    onClick && onClick();
   };
 
   useEffect(() => {
     // Update currentPath based on the URL hash
     if (window.location.hash === `#${name}`) {
-      setCurrentPath(path);
+      setCurrentPath && setCurrentPath(path);
     }
   }, [name, path]);
 

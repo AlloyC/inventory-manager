@@ -17,7 +17,7 @@ const StepsLabel = ({ projectData, setProjectData }: LabelsProps) => {
             onClick={() =>
               setProjectData((prev) => ({
                 ...prev!,
-                steps: [{ step: "" }],
+                steps: [{ step: "", completed: false }],
               }))
             }
           >
@@ -34,7 +34,10 @@ const StepsLabel = ({ projectData, setProjectData }: LabelsProps) => {
                 setProjectData((prev) => {
                   if (prev) {
                     const updatedSteps = [...prev.steps];
-                    updatedSteps.splice(id, 1, { step: e.target.value });
+                    updatedSteps.splice(id, 1, {
+                      step: e.target.value,
+                      completed: step.completed,
+                    });
                     return { ...prev, steps: updatedSteps };
                   }
                   return prev;
@@ -47,7 +50,7 @@ const StepsLabel = ({ projectData, setProjectData }: LabelsProps) => {
               title="Remove step"
               variant={"ghost"}
               size={"icon-sm"}
-              className="rounded-full bg-slate-100 hover:bg-slate-200"
+              className="rounded-full bg-slate-100 dark:bg-sidebar-accent hover:bg-slate-200 dark:hover:bg-sidebar-accent-hover"
               onClick={() =>
                 setProjectData((prev) =>
                   prev
@@ -72,13 +75,16 @@ const StepsLabel = ({ projectData, setProjectData }: LabelsProps) => {
                 type="button"
                 variant={"ghost"}
                 size={"icon-sm"}
-                className="rounded-full bg-slate-100 hover:bg-slate-200"
+                className="rounded-full bg-slate-100 dark:bg-sidebar-accent hover:bg-slate-200 dark:hover:bg-sidebar-accent-hover"
                 onClick={() =>
                   setProjectData((prev) =>
                     prev
                       ? {
                           ...prev,
-                          steps: [...prev.steps, { step: "" }],
+                          steps: [
+                            ...prev.steps,
+                            { step: "", completed: false },
+                          ],
                         }
                       : prev,
                   )

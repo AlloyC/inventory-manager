@@ -35,10 +35,7 @@ const UserContext = ({ children }: { children: React.ReactNode }) => {
   // Fetch user details from Supabase
   const fetchUser = async () => {
     try {
-      const {
-        data: { user },
-        error,
-      } = await supabase
+      const { data: user, error } = await supabase
         .from("users")
         .select("*")
         .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
@@ -46,6 +43,7 @@ const UserContext = ({ children }: { children: React.ReactNode }) => {
       if (error) {
         throw error;
       }
+      console.log("Fetched user data:", user);
       user &&
         setUserData({
           username: user.username || "",
