@@ -15,7 +15,7 @@ const PinnedSection = () => {
         pinned.map((project, id) => (
           <PinnedCard
             id={project.id}
-            name={project.name}
+            name={project.name!}
             status={project.status}
             key={id}
           />

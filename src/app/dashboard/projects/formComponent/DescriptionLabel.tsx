@@ -23,6 +23,7 @@ const DescriptionLabel = ({ projectData, setProjectData }: LabelsProps) => {
                   status: "planning",
                   project_components: [],
                   steps: [],
+                  pinned: false,
                 },
           )
         }

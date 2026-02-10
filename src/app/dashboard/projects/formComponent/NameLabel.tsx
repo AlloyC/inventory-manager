@@ -23,6 +23,7 @@ const NameLabel = ({
                   status: "planning",
                   project_components: [],
                   steps: [],
+                  pinned: false,
                 },
           )
         }
