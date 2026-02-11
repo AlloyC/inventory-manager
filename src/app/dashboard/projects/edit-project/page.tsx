@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useInventory } from "../../../Provider/InventoryContext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Project } from "@/app/types/type";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getProject, updateProject } from "@/app/Provider/ProjectsProvider";
@@ -20,6 +20,7 @@ const EditProjects = () => {
   const id = param.get("id");
   const [projectData, setProjectData] = useState<Project | null>(null);
   const [images, setImages] = useState<{ file: File; url: string }[]>([]);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (id) {
@@ -46,6 +47,36 @@ const EditProjects = () => {
     router.back();
   };
 
+  const handleEditProject = async (
+    data: Project,
+    images: { file: File; url: string }[],
+  ) => {
+    if (!projectData) return;
+    if (data.name === "") {
+      formRef.current?.querySelector("#name")?.classList.add("border-red-500");
+      return;
+    } else {
+      formRef.current
+        ?.querySelector("#name")
+        ?.classList.remove("border-red-500");
+    }
+
+    if (data.description === "") {
+      formRef.current
+        ?.querySelector("#description")
+        ?.classList.add("border-red-500");
+      return;
+    } else {
+      formRef.current
+        ?.querySelector("#description")
+        ?.classList.remove("border-red-500");
+    }
+
+    await updateProject(data, images).then(() =>
+      router.push("/dashboard/projects"),
+    );
+  };
+
   if (!inventory || !projectData) {
     return null;
   }
@@ -59,7 +90,7 @@ const EditProjects = () => {
           <span>Back</span>
         </Button>
       </div>
-      <form action="" className="px-3 flex flex-col gap-5">
+      <form ref={formRef} className="px-3 flex flex-col gap-5">
         <NameLabel projectData={projectData} setProjectData={setProjectData} />
         <DescriptionLabel
           projectData={projectData}
@@ -84,7 +115,7 @@ const EditProjects = () => {
           projectData={projectData}
           text={"Update Project"}
           images={images}
-          action={(data, images) => updateProject(data, images).then(() => router.push("/dashboard/projects"))}
+          action={handleEditProject}
         />
       </form>
     </div>

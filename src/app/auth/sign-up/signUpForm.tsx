@@ -6,6 +6,7 @@ import Link from "next/link";
 import supabase from "@/app/SupabaseCredentials";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const SignUpForm = () => {
   const [username, setUsername] = useState("");
@@ -19,6 +20,7 @@ const SignUpForm = () => {
     // Basic validation
     if (password !== confirmPassword) {
       console.log("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
     setLoading(true);
@@ -39,8 +41,9 @@ const SignUpForm = () => {
       }
       //   Route user to confirmation page
       data.user && router.push("/auth/confirmation");
-    } catch (error) {
+    } catch (error: any) {
       console.log("Error signing up:", error);
+      toast.error("Error signing up: " + error.message);
     }
     setLoading(false);
   };

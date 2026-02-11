@@ -139,10 +139,9 @@ const ProjectsTable = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <button className="text-gray-500">
-            {/* <List /> */}
+          {/* <button className="text-gray-500">
             <Grid />
-          </button>
+          </button> */}
         </div>
       </div>
       <div className="grid w-full">

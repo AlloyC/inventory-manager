@@ -1,8 +1,9 @@
 "use client";
-import { updateProject } from "@/app/Provider/ProjectsProvider";
+import { useInventory } from "@/app/Provider/InventoryContext";
+import { useProjects } from "@/app/Provider/ProjectsProvider";
 import { Project } from "@/app/types/type";
-import { Button } from "@/components/ui/button";
-import React from "react";
+import SubmitBtn from "@/components/submitBtn";
+import { useState } from "react";
 
 const SubmitButton = ({
   projectData,
@@ -21,12 +22,28 @@ const SubmitButton = ({
     }[],
   ) => Promise<void>;
 }) => {
+  const [activeState, setActiveState] = useState(false);
+  const { setRefresh: setInventoryRefresh } = useInventory();
+  const { setRefresh: setProjectsRefresh } = useProjects();
+
   const handleUploadEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!projectData) return;
-    action(projectData!, images);
+    (() => setActiveState(true))();
+    action(projectData!, images)
+      .then(() => {
+        setInventoryRefresh((prev) => !prev);
+        setProjectsRefresh((prev) => !prev);
+      })
+      .finally(() => setActiveState(false));
   };
-  return <Button onClick={handleUploadEdit}>{text}</Button>;
+  return (
+    <SubmitBtn
+      text={text}
+      action={handleUploadEdit}
+      active={!!projectData && activeState}
+    />
+  );
 };
 
 export default SubmitButton;

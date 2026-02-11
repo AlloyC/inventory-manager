@@ -10,6 +10,7 @@ import NewComponent from "../modals/NewComponent";
 import LogOut from "../modals/LogOut";
 import AuthProvider from "../Provider/AuthProvider";
 import { useRouter } from "next/navigation";
+import { ToastContainer } from "react-toastify";
 
 const layout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const [logout, setLogout] = useState(false);
@@ -42,12 +43,13 @@ const layout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
             <TopBar />
           </div>
           <main className="w-full max-w-7xl mx-auto h-full p-5 md:px-10">
-            <ProjectsProvider>
-              <InventoryContext>
+            <InventoryContext>
+              <ProjectsProvider>
                 <AuthProvider>{children}</AuthProvider>
-              </InventoryContext>
-            </ProjectsProvider>
+              </ProjectsProvider>
+            </InventoryContext>
           </main>
+          <ToastContainer />
         </div>
       </UserContext>
     </SidebarProvider>

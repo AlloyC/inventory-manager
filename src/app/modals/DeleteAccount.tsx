@@ -2,8 +2,9 @@
 import { Button } from "@/components/ui/button";
 import supabase from "../SupabaseCredentials";
 import { getSession } from "../Provider/UserContext";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useRouter } from "next/navigation";
+import SubmitBtn from "@/components/submitBtn";
 
 const DeleteAccount = ({
   setDeleteAccount,
@@ -11,10 +12,12 @@ const DeleteAccount = ({
   setDeleteAccount: Dispatch<SetStateAction<boolean>>;
 }) => {
   const router = useRouter();
+  const [active, setActive] = useState(false);
   async function signOut() {
     const { error } = await supabase.auth.signOut();
   }
   const handleDelete = async () => {
+    (() => setActive(true))();
     const userSession = await getSession();
     if (!userSession) return [];
     //delete account- sign out before delete
@@ -31,6 +34,7 @@ const DeleteAccount = ({
     } catch (err) {
       console.log("error deleting user:", err);
     }
+    setActive(false);
   };
   return (
     <div className="fixed inset-0 bg-black/10 z-30 flex items-center justify-center">
@@ -48,12 +52,18 @@ const DeleteAccount = ({
           <Button variant={"outline"} onClick={() => setDeleteAccount(false)}>
             Cancel
           </Button>
-          <Button
+          <SubmitBtn
+            className="bg-red-500 hover:hover:bg-red-600 h-9 rounded-md text-white dark:hover:bg-red-600"
+            action={handleDelete}
+            active={active}
+            text="Delete"
+          />
+          {/* <Button
             className="bg-red-500 text-white dark:hover:bg-red-600"
             onClick={handleDelete}
           >
             Delete Account
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>

@@ -33,6 +33,7 @@ export interface InventoryComponent {
   status: "In Stock" | "Low Stock" | "Out of Stock";
   current_qty: number;
   image: string;
+  low_stock_threshold: number;
 }
 
 export interface Project {

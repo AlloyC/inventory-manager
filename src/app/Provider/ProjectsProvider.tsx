@@ -1,8 +1,9 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
-import { Project } from "../types/type";
+import { InventoryComponent, Project } from "../types/type";
 import supabase from "../SupabaseCredentials";
 import { getSession } from "./UserContext";
+import { toast } from "react-toastify";
 
 const Projects = createContext<{
   pinned: Partial<Project>[];
@@ -162,6 +163,39 @@ export const getProject = async (id: number) => {
   return data;
 };
 
+const updateInventoryComponent = async (
+  component: Partial<InventoryComponent> & {
+    qty: number;
+    component_id: string;
+    location?: string;
+  },
+) => {
+  try {
+    const qty = component.current_qty! - component.qty;
+    let status: string;
+    if (qty <= 0) {
+      status = "Out of Stock";
+    } else if (qty <= component.low_stock_threshold!) {
+      status = "Low Stock";
+    } else {
+      status = "In Stock";
+    }
+
+    const { error: updateError } = await supabase
+      .from("components")
+      .update({
+        current_qty: qty,
+        status: status,
+      })
+      .eq("id", component.id);
+    if (updateError) {
+      throw updateError;
+    }
+  } catch (error) {
+    console.error("Error updating inventory component:", error);
+  }
+};
+
 export const updateProject = async (
   data: Project,
   images: {
@@ -198,10 +232,18 @@ export const updateProject = async (
     if (error) {
       throw error;
     }
+
+    // Update inventory components based on project components
+    for (const component of data.project_components) {
+      await updateInventoryComponent(component);
+    }
+    toast.success("Project updated successfully");
   } catch (error) {
     console.error("Error updating project:", error);
+    toast.error("Error updating project");
   }
 };
+
 export const createProject = async (
   data: Project,
   images: {
@@ -244,8 +286,15 @@ export const createProject = async (
     if (insertError) {
       throw insertError;
     }
+
+    // Update inventory components based on project components
+    for (const component of data.project_components) {
+      await updateInventoryComponent(component);
+    }
+    toast.success("Project created successfully");
   } catch (error) {
     console.error("Error creating project:", error);
+    toast.error("Error creating project");
   }
 };
 
@@ -298,6 +347,7 @@ const deleteExistingProjectImages = async (
     }
   } catch (error) {
     console.error("Error deleting project images:", error);
+    toast.error("Error deleting project images");
   }
 };
 
@@ -329,6 +379,7 @@ const uploadImagesToSupabase = async (
     console.log("Uploaded image URLs:", imageUrls);
   } catch (error) {
     console.error("Error uploading images:", error);
+    toast.error("Error uploading images");
   }
   return { imageUrls, localUrls };
 };

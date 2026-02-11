@@ -15,6 +15,7 @@ import { useAuth } from "@/app/Provider/AuthProvider";
 import { useEffect, useRef, useState } from "react";
 import { getSession, useUser } from "@/app/Provider/UserContext";
 import supabase from "@/app/SupabaseCredentials";
+import { toast } from "react-toastify";
 
 const ProfileSettingsSection = () => {
   const { setDeleteAccount } = useAuth();
@@ -35,7 +36,8 @@ const ProfileSettingsSection = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     setTimeout(
-      () => uplaodImage(file).catch((error) => console.log(error)),
+      () => uplaodImage(file).catch((error) => {
+      toast.error("Error updating profile image"); console.log(error)}),
       2000,
     );
     setPreview({ file, url: URL.createObjectURL(file) });
@@ -61,7 +63,10 @@ const ProfileSettingsSection = () => {
         avatar_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/user_profile/${session.user.id}/${file.name}`,
       })
       .eq("user_id", session.user.id);
-    if (error) throw error;
+    if (error) {
+      throw error
+    };
+    toast.success("Image uploaded successfully");
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,10 +90,12 @@ const ProfileSettingsSection = () => {
       if (error) {
         throw error;
       } else {
-        console.log("Password updated");
+        // console.log("Password updated");
+        toast.success("Password updated successfully");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log("Error updating password:", error);
+      toast.error("Error updating password: " + error.message);
     }
   };
 
@@ -109,6 +116,7 @@ const ProfileSettingsSection = () => {
       .eq("user_id", session.user.id);
     if (error) throw error;
     console.log("image remove successfully");
+    toast.success("Image removed successfully");
   };
 
   const handleSaveName = async () => {
@@ -123,8 +131,10 @@ const ProfileSettingsSection = () => {
         .eq("user_id", session.user.id);
       if (error) throw error;
       console.log("Username updated successfully");
-    } catch (error) {
+      toast.success("Username updated successfully");
+    } catch (error: any) {
       console.log("Error updating username:", error);
+      toast.error("Error updating username: " + error.message);
     }
 
     try {
@@ -135,8 +145,9 @@ const ProfileSettingsSection = () => {
       });
       if (error) throw error;
       console.log("User metadata updated successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.log("Error updating user metadata:", error);
+      toast.error("Error updating user metadata: " + error.message);
     }
   };
 

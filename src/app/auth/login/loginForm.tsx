@@ -6,6 +6,7 @@ import supabase from "@/app/SupabaseCredentials";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const LoginForm = () => {
   const [username, setUsername] = useState("");
@@ -50,8 +51,10 @@ const LoginForm = () => {
           userExist,
         );
       }
-    } catch (error) {
+      toast.success("Login successful");
+    } catch (error: any) {
       console.log("Error logging in:", error);
+      toast.error("Error logging in: " + error.message);
     }
     setLoading(false);
   };

@@ -5,17 +5,19 @@ const SubmitBtn = ({
   text,
   action,
   active,
+  className,
 }: {
   text: string;
   action: MouseEventHandler<HTMLButtonElement>;
   active: boolean;
+  className?: string;
 }) => {
   return (
     <div>
       <button
         type="button"
         onClick={action}
-        className={` flex justify-center items-center focus:outline-none focus:bg-blue-700 hover:bg-blue-700 w-full text-center bg-blue-600 p-2 rounded text-white font-semibold ${
+        className={` flex justify-center items-center focus:outline-none focus:bg-blue-700 hover:bg-blue-700 w-full text-center bg-blue-600 p-2 rounded text-white font-semibold ${className} ${
           active ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
         }`}
         disabled={active}

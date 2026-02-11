@@ -53,6 +53,7 @@ const page = () => {
     status: "In Stock",
     current_qty: 1,
     image: "",
+    low_stock_threshold: 1,
   });
 
   const handleEdit = (component: InventoryComponent) => {
@@ -70,6 +71,10 @@ const page = () => {
       (getStatusParam?.toString().replaceAll("-", " ") as statusType) || null,
     );
   }, [getStatusParam?.toString()]);
+
+  useEffect(() => {
+    getStatusParam === null && router.refresh();
+  }, [getStatusParam]);
 
   if (!inventory) {
     return null;
@@ -173,13 +178,19 @@ const page = () => {
             {inventory.map((component) => (
               <TableRow key={component.id}>
                 <TableCell className="font-medium">
-                  <Image
-                    src={component.image}
-                    alt="Component Image"
-                    width={20}
-                    height={20}
-                    className="rounded"
-                  />
+                  {component.image !== null ? (
+                    <Image
+                      src={component.image}
+                      alt="Component Image"
+                      width={30}
+                      height={30}
+                      className="rounded"
+                    />
+                  ) : (
+                    <div className="w-min rounded bg-gray-300 flex items-center justify-center text-xs text-gray-600 p-1">
+                      N/A
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>{component.name}</TableCell>
                 <TableCell>{component.location}</TableCell>

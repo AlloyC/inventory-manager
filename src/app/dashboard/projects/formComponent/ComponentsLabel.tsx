@@ -119,7 +119,7 @@ const ComponentsLabel = ({
               title="Remove component"
               variant={"ghost"}
               size={"icon-sm"}
-              className="rounded-full bg-slate-100 hover:bg-slate-200"
+              className="rounded-full bg-slate-100 dark:bg-accent dark:hover:bg-sidebar hover:bg-slate-200"
               onClick={() =>
                 setProjectData((prev) =>
                   prev
@@ -142,7 +142,7 @@ const ComponentsLabel = ({
               type="button"
               variant={"ghost"}
               size={"icon-sm"}
-              className="rounded-full bg-slate-100 hover:bg-slate-200"
+              className="rounded-full bg-slate-100  dark:bg-accent dark:hover:bg-sidebar hover:bg-slate-200"
               onClick={() =>
                 setProjectData((prev) =>
                   prev
