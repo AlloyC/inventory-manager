@@ -7,7 +7,7 @@ import Link from "next/link";
 const Navbar = () => {
   const router = useRouter();
   return (
-    <div className="bg-white dark:bg-gray-900">
+    <div className="bg-gray-900">
       <header className="lg:col-span-2 flex items-center justify-between w-full py-4 px-6 shadow-md border-b max-w-6xl mx-auto">
         <div className="flex items-center gap-5">
           <Logo className="w-32" />
@@ -23,11 +23,16 @@ const Navbar = () => {
           <Button
             variant={"outline"}
             onClick={() => router.push("/auth/sign-up")}
-            className="hidden md:block"
+            className="hidden md:block text-white"
           >
             Sign up
           </Button>
-          <Button onClick={() => router.push("/auth/login")}>Log in</Button>
+          <Button
+            onClick={() => router.push("/auth/login")}
+            className="bg-white text-black"
+          >
+            Log in
+          </Button>
         </div>
       </header>
     </div>
@@ -41,7 +46,7 @@ const NavLink = ({ name }: { name: string }) => {
     <li>
       <Link
         href={`#${name.toLowerCase().replace(/\s+/g, "-")}`}
-        className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
+        className="text-gray-400  transition-colors duration-200"
       >
         {name}
       </Link>

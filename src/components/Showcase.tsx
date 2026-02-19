@@ -53,7 +53,7 @@ const Feature = ({
 }) => {
   return (
     <div
-      className={`flex flex-col w-full ${index % 2 !== 0 ? "md:flex-row-reverse  md:justify-end" : "md:flex-row md:justify-stretch"} gap-10 items-center`}
+      className={`flex flex-col w-full ${index % 2 !== 0 ? "md:flex-row-reverse  md:justify-end" : "md:flex-row md:justify-stretch"} gap-10 items-center text-white`}
     >
       <div className="max-w-sm">
         <Icon className="w-8 h-8 md:w-14 md:h-14" />
