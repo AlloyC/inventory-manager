@@ -53,7 +53,9 @@ const Step = ({
   index: number;
 }) => {
   return (
-    <div className="w-full min-h-56 pt-5 flex flex-col gap-2 rounded-lg border border-gray-400/20">
+    <div
+      className={`w-full animate-in ${index % 2 ? "slide-in-from-top-20" : "slide-in-from-bottom-20"} duration-700 min-h-56 pt-5 flex flex-col gap-2 rounded-lg border border-gray-400/20`}
+    >
       <span className="px-3 text-gray-800">Step {index}</span>
       <h3 className="px-3 font-medium text-xl">{title}</h3>
       <p className="px-3 mb-3">{description}</p>

@@ -39,7 +39,7 @@ const HighlightSection = () => {
       <div className="mx-auto max-w-6xl py-12 px-10">
         <h2 className="text-black mb-6 font-medium text-xl">Key Features</h2>
         <div className="flex flex-col lg:flex-row justify-between items-center gap-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 slide-in-from-left-40 animate-in duration-700">
             {highlights.map((highlight) => (
               <Highlight key={highlight.title} {...highlight} />
             ))}
@@ -49,7 +49,8 @@ const HighlightSection = () => {
             alt=""
             width={350}
             height={350}
-            className="rounded-lg shadow-lg w-full h-auto object-cover"
+            priority={true}
+            className="rounded-lg slide-in-from-bottom-40 animate-in duration-700 shadow-lg w-full h-auto object-cover"
           />
         </div>
       </div>
@@ -67,7 +68,7 @@ const Highlight = ({
   description: string;
 }) => {
   return (
-    <div className="flex flex-col gap-2 w-full max-w-md bg-blue-200/50 shadow-lg border border-gray-400/10 rounded-lg backdrop-blur-3xl p-3 text-black">
+    <div className="flex fade-in animate-in flex-col gap-2 w-full max-w-md bg-blue-200/50 shadow-lg border border-gray-400/10 rounded-lg backdrop-blur-3xl p-3 text-black">
       <Icon />
       <h3 className="font-medium">{title}</h3>
       <p className="text-balance">{description}</p>

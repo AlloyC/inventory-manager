@@ -4,7 +4,7 @@ const Trust = () => {
   return (
     <div className="bg-white">
       <div className=" py-12 max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-5 mx-auto px-4 text-gray-800">
-        <div className="px-4">
+        <div className="px-4 slide-in-from-start animate-in duration-700">
           <span className="text-blue-500 font-bold">Trusted</span>
           <h2 className="text-3xl font-bold mb-4">
             Built for engineers who know what matters
@@ -16,7 +16,7 @@ const Trust = () => {
             companies.
           </p>
         </div>
-        <div className="justify-self-center flex flex-col md:flex-row gap-6 lg:flex-col border">
+        <div className="justify-self-center flex flex-col md:flex-row gap-6 lg:flex-col border slide-in-from-end animate-in duration-700">
           <ValueComponent
             value="1000+"
             description="Hardware projects tracked"

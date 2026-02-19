@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import Image from "next/image";
 
 const testimonials = [
   {
@@ -56,9 +57,16 @@ const Testimonial = ({
   image: string;
 }) => {
   return (
-    <div className="p-4 border flex flex-col gap-2 border-gray-200 rounded-lg shadow-sm">
+    <div className="p-4 border animate-in fade-in-60 duration-500 flex flex-col gap-2 border-gray-200 rounded-lg shadow-sm">
       <div className="bg-gray-200 rounded-full w-16 h-16 overflow-hidden">
-        <img src={image} alt={name} className="w-full h-full object-cover" />
+        <Image
+          src={image}
+          alt={name}
+          priority
+          width={20}
+          height={20}
+          className="w-full h-full object-cover"
+        />
       </div>
       <p className="text-lg italic text-balance lg:text-pretty">"{quote}"</p>
       <div className="mt-auto lg:mt-2">

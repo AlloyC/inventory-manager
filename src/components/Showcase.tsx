@@ -55,7 +55,9 @@ const Feature = ({
     <div
       className={`flex flex-col w-full ${index % 2 !== 0 ? "md:flex-row-reverse  md:justify-end" : "md:flex-row md:justify-stretch"} gap-10 items-center text-white`}
     >
-      <div className="max-w-sm">
+      <div
+        className={`max-w-sm ${index % 2 !== 0 ? "animate-in slide-in-from-start-20" : "animate-in slide-in-from-end-20"} duration-700`}
+      >
         <Icon className="w-8 h-8 md:w-14 md:h-14" />
         <h3 className="md:text-4xl text-2xl mt-2 font-medium mb-3">{title}</h3>
         <p>{description}</p>
@@ -64,7 +66,12 @@ const Feature = ({
         src={image}
         width={300}
         height={300}
-        className={index % 2 !== 0 ? "w-full rounded-xl max-w-lg" : "w-full"}
+        priority
+        className={
+          index % 2 !== 0
+            ? "w-full animate-in slide-in-from-end-20 duration-700 rounded-xl max-w-lg"
+            : "w-full animate-in slide-in-from-start-20 duration-700"
+        }
         alt="Feature image"
       />
     </div>
