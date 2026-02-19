@@ -22,7 +22,7 @@ export default function Home() {
     let loadedCount = 0;
     const handleLoad = () => {
       loadedCount++;
-      if (loadedCount === images.length) {
+      if (loadedCount >= 6) {
         setLoading(false);
       }
     };
