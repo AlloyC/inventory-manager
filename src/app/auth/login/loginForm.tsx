@@ -64,8 +64,8 @@ const LoginForm = () => {
       <Input
         value={username}
         setValue={setUsername}
-        type="text"
-        label="Username"
+        type="email"
+        label="Email"
       />
       <Input
         value={password}

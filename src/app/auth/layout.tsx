@@ -1,3 +1,5 @@
+"use client";
+import { ToastContainer } from "react-toastify";
 
 function layout({
   children,
@@ -7,8 +9,9 @@ function layout({
   return (
     <div className="w-screen min-h-screen flex justify-center items-center bg-linear-to-br from-blue-400 to-purple-600">
       {children}
+      <ToastContainer />
     </div>
-  )
+  );
 }
 
-export default layout
+export default layout;
